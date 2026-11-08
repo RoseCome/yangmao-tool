@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全网羊毛 · 免费线报</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f1f2f4; --card:#ffffff; --card2:#f8f9fa; --text:#1a1d21; --muted:#6b7280;
+  --border:#e5e7eb; --gold:#e8a91c; --gold-deep:#b45309; --gold-bg:#fdf3d7;
+  --accent:#2563eb; --danger:#dc2626; --ok:#16a34a;
+  --shadow:0 1px 3px rgba(0,0,0,.08); --radius:12px;
+}
+[data-theme="dark"]{
+  --bg:#14161a; --card:#1e2126; --card2:#26292f; --text:#e5e7eb; --muted:#9ca3af;
+  --border:#33373f; --gold:#f0b429; --gold-deep:#fbbf24; --gold-bg:#3a2f10;
+  --accent:#60a5fa; --shadow:0 1px 3px rgba(0,0,0,.4);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit;font-size:14px;color:var(--text)}
+::-webkit-scrollbar{height:8px;width:8px}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#4b5563}
+
+/* ---------- 顶栏 ---------- */
+.topbar{position:sticky;top:0;z-index:40;background:var(--card);border-bottom:1px solid var(--border)}
+.topbar-in{max-width:1400px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:16px}
+.logo{font-size:20px;font-weight:800;white-space:nowrap;cursor:pointer}
+.logo span{color:var(--gold-deep)}
+.search-wrap{flex:1;max-width:560px;position:relative}
+.search-wrap input{width:100%;padding:9px 12px 9px 36px;border:1px solid var(--border);border-radius:999px;background:var(--card2);outline:none}
+.search-wrap input:focus{border-color:var(--gold);background:var(--card)}
+.search-wrap::before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px}
+.top-count{color:var(--muted);font-size:13px;white-space:nowrap}
+
+/* ---------- 三栏 ---------- */
+.layout{max-width:1400px;margin:0 auto;padding:16px;display:grid;grid-template-columns:236px minmax(0,1fr) 288px;gap:16px;align-items:start}
+.col-sticky{position:sticky;top:76px}
+.side-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+.side-title{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.05em}
+.cat-list{display:flex;flex-direction:column;gap:2px}
+.cat-item{display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 10px;border:0;border-radius:8px;background:transparent;color:var(--text);font-size:14px;text-align:left}
+.cat-item:hover{background:var(--card2)}
+.cat-item.active{background:var(--gold-bg);color:var(--gold-deep);font-weight:700}
+.cat-item .cnt{font-size:12px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:1px 8px}
+.cat-item.active .cnt{color:var(--gold-deep);border-color:var(--gold)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.stat b{display:block;font-size:20px;line-height:1.2}
+.stat span{font-size:12px;color:var(--muted)}
+.btn-discover{width:100%;padding:12px;border:0;border-radius:10px;background:linear-gradient(180deg,#f5c542,#e8a91c);color:#3a2a00;font-size:15px;font-weight:800;box-shadow:0 2px 8px rgba(232,169,28,.4)}
+.btn-discover:disabled{opacity:.75;cursor:not-allowed}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:8px 2px;font-size:14px}
+.switch{position:relative;display:inline-block;width:40px;height:22px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.switch .sl{position:absolute;inset:0;background:#cbd5e1;border-radius:999px;transition:.2s;cursor:pointer}
+.switch .sl::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch input:checked + .sl{background:var(--gold)}
+.switch input:checked + .sl::after{transform:translateX(18px)}
+.side-link{display:block;width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:14px;text-align:left;margin-top:6px}
+.side-link:hover{border-color:var(--gold)}
+.side-link.active{border-color:var(--gold);background:var(--gold-bg);color:var(--gold-deep);font-weight:700}
+
+/* ---------- 右栏 ---------- */
+.side-item{display:block;padding:8px 6px;border-bottom:1px solid var(--border);cursor:pointer}
+.side-item:last-child{border-bottom:0}
+.side-item:hover{background:var(--card2)}
+.side-item .t{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.side-item .m{font-size:12px;color:var(--muted);margin-top:3px}
+.side-item .m .exp{color:var(--danger);font-weight:700}
+.empty-note{font-size:13px;color:var(--muted);padding:6px}
+
+/* ---------- 中间：工具条 ---------- */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+.result-count{font-size:13px;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{padding:6px 12px;border:1px solid var(--border);border-radius:999px;background:var(--card);font-size:13px;cursor:pointer;color:var(--text)}
+.chip:hover{border-color:var(--gold)}
+.chip.active{background:var(--gold);border-color:var(--gold);color:#3a2a00;font-weight:700}
+.chip .n{opacity:.75;font-size:12px}
+
+/* ---------- 测算器 ---------- */
+.calc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.calc h2{font-size:16px;margin-bottom:4px}
+.calc .sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+.calc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.calc-field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.calc-field input{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card2);outline:none}
+.calc-field input:focus{border-color:var(--gold);background:var(--card)}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.preset{padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card2);font-size:13px;color:var(--text)}
+.preset:hover{border-color:var(--gold);color:var(--gold-deep)}
+.radio-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:13px}
+.radio-row .lab{color:var(--muted);font-size:12px}
+.radio-row label{display:inline-flex;align-items:center;gap:4px;cursor:pointer}
+.calc-result{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.calc-box{background:var(--gold-bg);border:1px solid var(--gold);border-radius:10px;padding:12px}
+.calc-box .k{font-size:12px;color:var(--muted)}
+.calc-box .v{font-size:20px;font-weight:800;color:var(--gold-deep);margin-top:2px}
+.calc-box .v small{font-size:14px;font-weight:700}
+.calc-foot{font-size:12px;color:var(--muted);margin-top:12px;border-top:1px dashed var(--border);padding-top:10px}
+
+/* ---------- 卡片流 ---------- */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;display:flex;flex-direction:column;gap:8px;position:relative}
+.card.visited{opacity:.58;background:var(--card2)}
+.card.visited .card-title{color:var(--muted)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card-title{font-size:15px;font-weight:700;line-height:1.4;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer;flex:1;min-width:0}
+a.card-title:hover{color:var(--accent)}
+.card-acts{display:flex;gap:4px;flex:none}
+.icon-btn{width:28px;height:28px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.icon-btn:hover{border-color:var(--gold)}
+.icon-btn.on{color:var(--gold-deep);border-color:var(--gold);background:var(--gold-bg)}
+.earn{font-size:15px;font-weight:800;color:var(--gold-deep)}
+.earn .pend{color:var(--muted);font-weight:600}
+.fdv-basis{font-size:12px;color:var(--muted);line-height:1.5}
+.card-meta{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.visited-badge{font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:0 5px;background:var(--card)}
+.exp-badge{font-size:11px;color:var(--danger);font-weight:700}
+.intro{font-size:13.5px;line-height:1.6;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.box{border:1px solid var(--border);border-radius:8px;padding:9px 10px;background:var(--card2)}
+.box .box-lab{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:3px}
+.box .box-txt{font-size:13px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.play-tags{display:flex;gap:6px;flex-wrap:wrap}
+.play-tag{font-size:11.5px;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;border:1px solid #dbe4ff}
+[data-theme="dark"] .play-tag{background:#1e293b;color:#93c5fd;border-color:#334155}
+.load-more{text-align:center;color:var(--muted);font-size:13px;padding:18px 0}
+.list-empty{background:var(--card);border:1px dashed var(--border);border-radius:var(--radius);padding:40px 16px;text-align:center;color:var(--muted)}
+
+/* ---------- 设置页 ---------- */
+.view{display:none}
+.view.show{display:block}
+.page-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.page-head h2{font-size:18px}
+.back-btn{padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px}
+.notice{background:var(--gold-bg);border:1px solid var(--gold);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.6;margin-bottom:14px;color:var(--text)}
+.notice b{color:var(--gold-deep)}
+.set-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.set-card h3{font-size:15px;margin-bottom:12px}
+.chan-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.chan-row:last-child{border-bottom:0}
+.chan-name{width:150px;font-weight:600;font-size:14px;flex:none}
+.chan-cred{flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card2);outline:none}
+.chan-cred:focus{border-color:var(--gold);background:var(--card)}
+.btn{padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px}
+.btn:hover{border-color:var(--gold)}
+.btn.primary{background:linear-gradient(180deg,#f5c542,#e8a91c);border-color:#e8a91c;color:#3a2a00;font-weight:700}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.pref-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pref-item{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+.pref-item input{width:16px;height:16px;accent-color:var(--gold)}
+.freq-row{display:flex;gap:8px;flex-wrap:wrap}
+.freq-opt{padding:8px 14px;border:1px solid var(--border);border-radius:999px;background:var(--card);font-size:13px;cursor:pointer;color:var(--text)}
+.freq-opt.active{background:var(--gold);border-color:var(--gold);color:#3a2a00;font-weight:700}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.form-field input,.form-field select{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card2);outline:none}
+.form-field input:focus,.form-field select:focus{border-color:var(--gold);background:var(--card)}
+.form-field.full{grid-column:1/-1}
+.btn-row{display:flex;gap:10px;margin-top:14px}
+
+/* ---------- 悬浮按钮 / 横幅 / 提示 ---------- */
+.fab-col{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;z-index:60}
+.fab{width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.18);font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--text)}
+.fab:hover{border-color:var(--gold)}
+#backTop{visibility:hidden;opacity:0;transition:.2s}
+#backTop.show{visibility:visible;opacity:1}
+#banner{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:70;background:#16a34a;color:#fff;padding:10px 20px;border-radius:999px;font-size:14px;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.25);display:none}
+#banner.show{display:block}
+#toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:70;background:#1f2937;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:none;max-width:90vw;text-align:center}
+#toast.show{display:block}
+
+/* ---------- 移动端 ---------- */
+@media (max-width:1080px){
+  .layout{grid-template-columns:1fr;padding:12px}
+  .col-sticky{position:static}
+  .cat-list{flex-direction:row;overflow-x:auto;padding-bottom:4px;gap:6px}
+  .cat-item{flex:none;width:auto;white-space:nowrap;border:1px solid var(--border)}
+  .side-right{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .side-right .side-card{margin-bottom:0}
+  .calc-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:720px){
+  .cards{grid-template-columns:1fr}
+  .calc-grid{grid-template-columns:1fr}
+  .calc-result{grid-template-columns:1fr}
+  .pref-list{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .side-right{grid-template-columns:1fr}
+  .top-count{display:none}
+  .chan-name{width:100%}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="logo" id="logoBtn">🤑 全网<span>羊毛</span></div>
+    <div class="search-wrap">
+      <input id="searchInput" type="search" placeholder="搜索标题 / 平台 / 福利…" autocomplete="off">
+    </div>
+    <div class="top-count" id="topCount"></div>
+  </div>
+</header>
+
+<div id="banner"></div>
+<div id="toast"></div>
+
+<div class="layout">
+
+  <!-- ================= 左栏 ================= -->
+  <aside>
+    <div class="col-sticky">
+      <div class="side-card">
+        <div class="side-title">分类导航</div>
+        <div class="cat-list" id="catList"></div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">数据统计</div>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat"><b id="stTotal">–</b><span>全部线报</span></div>
+          <div class="stat"><b id="stClaimable">–</b><span>可领取</span></div>
+          <div class="stat"><b id="stExpiring">–</b><span>即将到期</span></div>
+          <div class="stat"><b id="stUnvisited">–</b><span>未看</span></div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <button class="btn-discover" id="discoverBtn">🔍 立即发现</button>
+        <div style="height:10px"></div>
+        <div class="toggle-row"><span>⭐ 只看收藏</span>
+          <label class="switch"><input type="checkbox" id="favToggle"><span class="sl"></span></label>
+        </div>
+        <div class="toggle-row"><span>🙈 隐藏已看</span>
+          <label class="switch"><input type="checkbox" id="hideVisitedToggle"><span class="sl"></span></label>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">设置</div>
+        <button class="side-link" id="navPush">🔔 推送设置</button>
+        <button class="side-link" id="navProxy">🌐 代理设置</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= 中间 ================= -->
+  <main>
+    <!-- 列表页 -->
+    <section id="viewList" class="view show">
+      <div class="toolbar">
+        <select id="catSelect" aria-label="分类筛选"></select>
+        <span class="result-count" id="resultCount"></span>
+      </div>
+      <div class="chips" id="playChips" style="display:none"></div>
+
+      <!-- 空投收益测算器：仅空投分类显示 -->
+      <div class="calc" id="calcBox" style="display:none">
+        <h2>🧮 空投收益测算器</h2>
+        <div class="sub">按 FDV 反推单号价值：FDV × 空投池比例 ÷ 净活跃地址 × 交互权重</div>
+        <div class="calc-grid">
+          <div class="calc-field"><label>FDV（百万美元）</label><input id="calcFdv" type="number" min="0" step="any" value="1500"></div>
+          <div class="calc-field"><label>空投总池比例（%）</label><input id="calcPool" type="number" min="0" max="100" step="any" value="8"></div>
+          <div class="calc-field"><label>净活跃地址数</label><input id="calcAddr" type="number" min="1" step="1" value="80000"></div>
+        </div>
+        <div class="presets" id="calcPresets">
+          <button class="preset" data-fdv="2000" data-pool="10">顶级公链 · 2000M · 10%</button>
+          <button class="preset" data-fdv="1000" data-pool="10">DePIN 挂机 · 1000M · 10%</button>
+          <button class="preset" data-fdv="800" data-pool="12">去中心化 AI · 800M · 12%</button>
+          <button class="preset" data-fdv="1200" data-pool="7">BTC 二层 · 1200M · 7%</button>
+        </div>
+        <div class="radio-row"><span class="lab">交互权重</span>
+          <label><input type="radio" name="calcWeight" value="1"> 基础合格 1.0x</label>
+          <label><input type="radio" name="calcWeight" value="1.5" checked> 深度活跃 1.5x</label>
+          <label><input type="radio" name="calcWeight" value="2.5"> 核心贡献 2.5x</label>
+        </div>
+        <div class="radio-row"><span class="lab">账号数量</span>
+          <label><input type="radio" name="calcAccts" value="1" checked> 1 个</label>
+          <label><input type="radio" name="calcAccts" value="2"> 2 个</label>
+          <label><input type="radio" name="calcAccts" value="3"> 3 个</label>
+          <label><input type="radio" name="calcAccts" value="5"> 5 个</label>
+          <label><input type="radio" name="calcAccts" value="10"> 10 个</label>
+        </div>
+        <div class="calc-result">
+          <div class="calc-box"><div class="k">单号预估价值</div><div class="v" id="calcPer">$2,250 <small>¥16,290</small></div></div>
+          <div class="calc-box"><div class="k">多账号总预期产出</div><div class="v" id="calcTotal">$2,250 <small>¥16,290</small></div></div>
+        </div>
+        <div class="calc-foot">本测算采用保守真实估值模型，仅作为投研与交互投入产出比规划参考。</div>
+      </div>
+
+      <div class="cards" id="cards"></div>
+      <div id="sentinel"></div>
+      <div class="load-more" id="loadMore"></div>
+    </section>
+
+    <!-- 推送设置页 -->
+    <section id="viewPush" class="view">
+      <div class="page-head"><button class="back-btn" data-back>← 返回列表</button><h2>🔔 推送设置</h2></div>
+      <div class="notice">无需管理员口令，直接查看与修改。推送只发给你本人。<br>改频率只改推送节奏，不改发现节奏。</div>
+      <div class="set-card">
+        <h3>推送渠道</h3>
+        <div id="chanList"><div class="empty-note">加载中…</div></div>
+      </div>
+      <div class="set-card">
+        <h3>内容偏好</h3>
+        <div class="pref-list" id="prefList">
+          <label class="pref-item"><input type="checkbox" data-pref="new_deals"> 新线报</label>
+          <label class="pref-item"><input type="checkbox" data-pref="only_airdrop"> 只推空投</label>
+          <label class="pref-item"><input type="checkbox" data-pref="only_001"> 只推0.01撸</label>
+          <label class="pref-item"><input type="checkbox" data-pref="expiring_24h"> 快到期24小时</label>
+          <label class="pref-item"><input type="checkbox" data-pref="favorite_categories"> 收藏的分类</label>
+          <label class="pref-item"><input type="checkbox" data-pref="daily_digest"> 每天9点汇总一条</label>
+        </div>
+      </div>
+      <div class="set-card">
+        <h3>推送频率</h3>
+        <div class="freq-row" id="freqRow">
+          <button class="freq-opt" data-hours="1">1小时</button>
+          <button class="freq-opt active" data-hours="6">6小时</button>
+          <button class="freq-opt" data-hours="8">8小时</button>
+          <button class="freq-opt" data-hours="12">12小时</button>
+          <button class="freq-opt" data-hours="24">每天1次</button>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--muted)">改频率只改推送节奏，不改发现节奏。</div>
+      </div>
+    </section>
+
+    <!-- 代理设置页 -->
+    <section id="viewProxy" class="view">
+      <div class="page-head"><button class="back-btn" data-back>← 返回列表</button><h2>🌐 代理设置</h2></div>
+      <div class="notice"><b>托管版跑在云端、填家里局域网代理连不上是正常的；部署到自己 NAS/服务器后填 NAS 上 Clash/V2Ray 的局域网地址才能用。</b></div>
+      <div class="set-card">
+        <h3>代理配置</h3>
+        <div class="form-grid">
+          <div class="form-field full">
+            <label>启用代理</label>
+            <label class="switch"><input type="checkbox" id="proxyEnabled"><span class="sl"></span></label>
+          </div>
+          <div class="form-field"><label>类型</label>
+            <select id="proxyType"><option value="http">HTTP</option><option value="socks5">SOCKS5</option></select>
+          </div>
+          <div class="form-field"><label>端口</label><input id="proxyPort" type="number" min="1" max="65535" placeholder="例如 7890"></div>
+          <div class="form-field full"><label>地址（Host）</label><input id="proxyHost" type="text" placeholder="例如 192.168.1.10"></div>
+          <div class="form-field"><label>用户名（可选）</label><input id="proxyUser" type="text" autocomplete="off"></div>
+          <div class="form-field"><label>密码（留空不改）</label><input id="proxyPass" type="password" autocomplete="new-password" placeholder="留空则不修改已保存密码"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="proxySaveBtn">保存代理设置</button>
+          <button class="btn" id="proxyTestBtn">测试代理</button>
+        </div>
+        <div id="proxyStatus" style="margin-top:10px;font-size:13px;color:var(--muted)"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= 右栏 ================= -->
+  <aside class="side-right">
+    <div class="side-card">
+      <div class="side-title">⏰ 即将到期</div>
+      <div id="expiringList"><div class="empty-note">加载中…</div></div>
+    </div>
+    <div class="side-card">
+      <div class="side-title">🆕 最新动态</div>
+      <div id="latestList"><div class="empty-note">加载中…</div></div>
+    </div>
+    <div class="side-card">
+      <div class="side-title">⭐ 我的收藏</div>
+      <div id="favList"><div class="empty-note">加载中…</div></div>
+    </div>
+  </aside>
+</div>
+
+<div class="fab-col">
+  <button class="fab" id="backTop" title="回到顶部" aria-label="回到顶部">↑</button>
+  <button class="fab" id="themeBtn" title="切换深色 / 亮色" aria-label="切换主题">🌙</button>
+</div>
+
+<script>
+"use strict";
+/* ================= 基础 ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const CATEGORIES = [
+  {id:"airdrop", label:"虚拟币空投"},
+  {id:"ai", label:"AI 工具额度"},
+  {id:"esim", label:"eSIM/手机卡"},
+  {id:"cloud", label:"云服务/服务器"},
+  {id:"scripts", label:"脚本/自动化"},
+  {id:"shopping", label:"电商购物"},
+  {id:"bank", label:"银行信用卡"},
+  {id:"telecom", label:"话费流量"},
+  {id:"other", label:"其他"},
+];
+const PLAY_TYPES = [
+  {id:"claim", label:"领取"},
+  {id:"points", label:"积分"},
+  {id:"testnet", label:"测试网"},
+  {id:"node", label:"挂机/节点"},
+  {id:"faucet", label:"水龙头"},
+  {id:"wallet", label:"钱包连接"},
+  {id:"extension", label:"插件/扩展"},
+  {id:"mint", label:"铸造/NFT"},
+  {id:"referral", label:"推荐/拉人头"},
+];
+const catLabel = id => (CATEGORIES.find(c=>c.id===id)||{label:id}).label;
+const playLabel = id => (PLAY_TYPES.find(p=>p.id===id)||{label:id}).label;
+const RATE = 7.24;
+
+function esc(s){
+  if(s===null||s===undefined) return "";
+  return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function fmtNum(n, dec){
+  if(n===null||n===undefined||isNaN(n)) return "–";
+  return Number(n).toLocaleString("en-US",{minimumFractionDigits:0, maximumFractionDigits:(dec===undefined?2:dec)});
+}
+function fmtMoney(n){ return "$" + fmtNum(n); }
+function fmtCny(usd){ return "¥" + fmtNum(usd*RATE); }
+function fmtTime(v){
+  if(!v) return "";
+  let d;
+  if(typeof v==="number"){ d = new Date(v < 1e12 ? v*1000 : v); }
+  else { d = new Date(v); }
+  if(isNaN(d.getTime())) return "";
+  const p = n => String(n).padStart(2,"0");
+  return p(d.getMonth()+1)+"/"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes());
+}
+function fmtDateShort(v){
+  if(!v) return "";
+  const d = new Date(typeof v==="number" ? (v<1e12?v*1000:v) : v);
+  if(isNaN(d.getTime())) return "";
+  const p = n => String(n).padStart(2,"0");
+  return p(d.getMonth()+1)+"/"+p(d.getDate());
+}
+/* 过滤“验证”文本：去掉以“来源渠道：”开头的分句，只留核对方法与官方入口 */
+function filterVerify(notes){
+  if(!notes) return "";
+  const parts = String(notes).split(/[；;\n。]+/).map(s=>s.trim()).filter(Boolean);
+  const kept = parts.filter(s => !/^来源渠道[:：]/.test(s));
+  let text = kept.join("；");
+  text = text.replace(/来源渠道[:：][^；。]*/g, "").replace(/；{2,}/g,"；").replace(/^[；\s]+|[；\s]+$/g,"");
+  return text;
+}
+function fmtFdv(v){
+  if(v===null||v===undefined) return "";
+  const n = Number(v);
+  if(isNaN(n)) return String(v);
+  if(Math.abs(n) >= 1e6) return "$" + fmtNum(n/1e6) + "M";
+  return "$" + fmtNum(n);
+}
+function fmtPool(v){
+  if(v===null||v===undefined) return "";
+  const n = Number(v);
+  if(isNaN(n)) return String(v);
+  return (n>0 && n<=1 ? fmtNum(n*100) : fmtNum(n)) + "%";
+}
+
+async function api(action, body){
+  try{
+    const r = await fetch("/api/"+action, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(body||{}),
+    });
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    return await r.json();
+  }catch(e){
+    console.warn("API", action, "失败:", e);
+    return null;
+  }
+}
+
+let toastTimer = null;
+function toast(msg){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 2600);
+}
+let bannerTimer = null;
+function showBanner(html){
+  const b = $("#banner");
+  b.innerHTML = html;
+  b.classList.add("show");
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(()=>b.classList.remove("show"), 3000);
+}
+
+/* ================= 主题 ================= */
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  $("#themeBtn").textContent = theme==="dark" ? "☀️" : "🌙";
+  try{ localStorage.setItem("ym-theme", theme); }catch(e){}
+}
+(function initTheme(){
+  let saved = null;
+  try{ saved = localStorage.getItem("ym-theme"); }catch(e){}
+  applyTheme(saved==="dark" ? "dark" : "light");
+})();
+$("#themeBtn").addEventListener("click", ()=>{
+  const cur = document.documentElement.getAttribute("data-theme");
+  applyTheme(cur==="dark" ? "light" : "dark");
+});
+$("#backTop").addEventListener("click", ()=>window.scrollTo({top:0, behavior:"smooth"}));
+window.addEventListener("scroll", ()=>{
+  $("#backTop").classList.toggle("show", window.scrollY > 300);
+}, {passive:true});
+
+/* ================= 状态 ================= */
+const state = {
+  category:"all", play:null, search:"",
+  favorites:false, hideVisited:false,
+  offset:0, loading:false, hasMore:true, total:0,
+  stats:null, sidebar:null,
+};
+
+/* ================= 视图切换 ================= */
+function showView(name){
+  ["List","Push","Proxy"].forEach(v=>{
+    $("#view"+v).classList.toggle("show", v===name);
+  });
+  $("#navPush").classList.toggle("active", name==="Push");
+  $("#navProxy").classList.toggle("active", name==="Proxy");
+  window.scrollTo({top:0});
+}
+$("#navPush").addEventListener("click", ()=>{ showView("Push"); loadPushSettings(); });
+$("#navProxy").addEventListener("click", ()=>{ showView("Proxy"); loadProxySettings(); });
+$$("[data-back]").forEach(b=>b.addEventListener("click", ()=>showView("List")));
+$("#logoBtn").addEventListener("click", ()=>{ showView("List"); });
+
+/* ================= 分类导航 ================= */
+function countsFrom(source){
+  const map = {};
+  if(!source) return map;
+  if(Array.isArray(source)){
+    source.forEach(c=>{ if(c) map[c.id]=c.count||0; });
+  }else if(typeof source==="object"){
+    Object.keys(source).forEach(k=>{ map[k]=source[k]; });
+  }
+  return map;
+}
+function renderCategories(){
+  const sbCats = state.sidebar && state.sidebar.categories;
+  const stCats = state.stats && state.stats.byCategory;
+  const counts = Object.keys(countsFrom(sbCats)).length ? countsFrom(sbCats) : countsFrom(stCats);
+  const total = state.stats ? state.stats.total : (state.total||0);
+  const list = $("#catList");
+  let html = `<button class="cat-item ${state.category==="all"?"active":""}" data-cat="all"><span>全部线报</span><span class="cnt">${fmtNum(total)}</span></button>`;
+  CATEGORIES.forEach(c=>{
+    html += `<button class="cat-item ${state.category===c.id?"active":""}" data-cat="${c.id}"><span>${esc(c.label)}</span><span class="cnt">${fmtNum(counts[c.id]||0)}</span></button>`;
+  });
+  list.innerHTML = html;
+  list.querySelectorAll(".cat-item").forEach(btn=>{
+    btn.addEventListener("click", ()=>setCategory(btn.dataset.cat));
+  });
+  // 顶部下拉同步
+  const sel = $("#catSelect");
+  sel.innerHTML = `<option value="all">全部分类</option>` + CATEGORIES.map(c=>
+    `<option value="${c.id}" ${state.category===c.id?"selected":""}>${esc(c.label)}${counts[c.id]!==undefined?` (${fmtNum(counts[c.id])})`:""}</option>`
+  ).join("");
+  sel.value = state.category;
+}
+function setCategory(cat){
+  state.category = cat;
+  state.play = null;
+  showView("List");
+  renderCategories();
+  renderPlayChips();
+  updateCalcVisibility();
+  resetList();
+}
+
+/* ================= 玩法筛选片 ================= */
+function renderPlayChips(){
+  const box = $("#playChips");
+  if(state.category!=="airdrop"){ box.style.display="none"; box.innerHTML=""; return; }
+  box.style.display="flex";
+  const counts = countsFrom(state.stats && state.stats.byPlay);
+  let html = `<button class="chip ${!state.play?"active":""}" data-play="">全部玩法</button>`;
+  PLAY_TYPES.forEach(p=>{
+    const n = counts[p.id];
+    html += `<button class="chip ${state.play===p.id?"active":""}" data-play="${p.id}">${esc(p.label)}${n!==undefined?` <span class="n">${fmtNum(n)}</span>`:""}</button>`;
+  });
+  box.innerHTML = html;
+  box.querySelectorAll(".chip").forEach(ch=>{
+    ch.addEventListener("click", ()=>{
+      state.play = ch.dataset.play || null;
+      renderPlayChips();
+      resetList();
+    });
+  });
+}
+
+/* ================= 卡片 ================= */
+function earnHtml(d){
+  const low = d.est_earn_low, high = d.est_earn_high;
+  let main;
+  if(low!==null && low!==undefined && high!==null && high!==undefined){
+    main = `预估收益 ${fmtMoney(low)}–${fmtMoney(high)}`;
+  }else if(low!==null && low!==undefined){
+    main = `预估收益 ${fmtMoney(low)} 起`;
+  }else if(high!==null && high!==undefined){
+    main = `预估收益 最高 ${fmtMoney(high)}`;
+  }else{
+    main = `预估收益 <span class="pend">待定</span>`;
+  }
+  let basis = "";
+  if(d.fdv_usd!==null && d.fdv_usd!==undefined){
+    const parts = [`FDV ${fmtFdv(d.fdv_usd)}`];
+    if(d.pool_ratio!==null && d.pool_ratio!==undefined) parts.push(`空投池 ${fmtPool(d.pool_ratio)}`);
+    if(d.active_addresses!==null && d.active_addresses!==undefined) parts.push(`净活跃地址 ${fmtNum(d.active_addresses)}`);
+    parts.push("权重 1.0x–2.5x");
+    basis = `<div class="fdv-basis">FDV 反推依据：${esc(parts.join(" · "))}</div>`;
+  }
+  return `<div class="earn">${main}</div>${basis}`;
+}
+function cardHtml(d){
+  const time = fmtTime(d.published_at || d.created_at);
+  const verify = filterVerify(d.notes);
+  const plays = (d.play_types||[]).filter(Boolean);
+  const titleInner = esc(d.title||"（无标题）");
+  const titleEl = d.link
+    ? `<a class="card-title" href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" data-id="${d.id}">${titleInner}</a>`
+    : `<span class="card-title" data-id="${d.id}">${titleInner}</span>`;
+  const expiry = d.expiry_date ? `<span class="exp-badge">截止 ${esc(fmtDateShort(d.expiry_date))}</span>` : "";
+  return `
+  <article class="card ${d.visited?"visited":""}" data-id="${d.id}">
+    <div class="card-top">
+      ${titleEl}
+      <div class="card-acts">
+        <button class="icon-btn eye-btn ${d.visited?"on":""}" data-id="${d.id}" title="${d.visited?"标为未看":"标为已看"}" aria-label="已看切换">${d.visited?"👁️":"👁"}</button>
+        <button class="icon-btn star-btn ${d.pinned?"on":""}" data-id="${d.id}" title="${d.pinned?"取消收藏":"收藏"}" aria-label="收藏">${d.pinned?"⭐":"☆"}</button>
+      </div>
+    </div>
+    ${earnHtml(d)}
+    <div class="card-meta">
+      ${d.platform?`<span>${esc(d.platform)}</span>`:""}
+      <span>${esc(catLabel(d.category))}</span>
+      ${time?`<span>${esc(time)}</span>`:""}
+      ${expiry}
+      ${d.visited?`<span class="visited-badge">已看</span>`:""}
+    </div>
+    ${d.benefit?`<div class="intro">${esc(d.benefit)}</div>`:""}
+    ${d.conditions?`<div class="box"><div class="box-lab">门槛 / 参加方式</div><div class="box-txt">${esc(d.conditions)}</div></div>`:""}
+    ${verify?`<div class="box"><div class="box-lab">验证</div><div class="box-txt">${esc(verify)}</div></div>`:""}
+    ${d.category==="airdrop" && plays.length?`<div class="play-tags">${plays.map(p=>`<span class="play-tag">${esc(playLabel(p))}</span>`).join("")}</div>`:""}
+  </article>`;
+}
+function bindCardEvents(root){
+  root.querySelectorAll(".card-title").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const id = Number(el.dataset.id);
+      markVisited(id, true);
+    });
+  });
+  root.querySelectorAll(".eye-btn").forEach(btn=>{
+    btn.addEventListener("click", e=>{
+      e.stopPropagation();
+      const id = Number(btn.dataset.id);
+      const card = btn.closest(".card");
+      const nowVisited = !card.classList.contains("visited");
+      markVisited(id, nowVisited);
+    });
+  });
+  root.querySelectorAll(".star-btn").forEach(btn=>{
+    btn.addEventListener("click", async e=>{
+      e.stopPropagation();
+      const id = Number(btn.dataset.id);
+      const card = btn.closest(".card");
+      const nowPinned = !btn.classList.contains("on");
+      btn.classList.toggle("on", nowPinned);
+      btn.textContent = nowPinned ? "⭐" : "☆";
+      btn.title = nowPinned ? "取消收藏" : "收藏";
+      const res = await api("setDealPinned", {id, pinned:nowPinned});
+      if(!res){ toast("收藏操作失败，请稍后重试"); btn.classList.toggle("on", !nowPinned); btn.textContent = nowPinned?"☆":"⭐"; return; }
+      loadSidebar();
+      if(state.favorites && !nowPinned){ card.remove(); }
+    });
+  });
+}
+async function markVisited(id, visited){
+  const card = document.querySelector(`.card[data-id="${id}"]`);
+  if(card){
+    card.classList.toggle("visited", visited);
+    const eye = card.querySelector(".eye-btn");
+    if(eye){ eye.classList.toggle("on", visited); eye.textContent = visited?"👁️":"👁"; eye.title = visited?"标为未看":"标为已看"; }
+    let badge = card.querySelector(".visited-badge");
+    if(visited && !badge){
+      const meta = card.querySelector(".card-meta");
+      if(meta){ const s=document.createElement("span"); s.className="visited-badge"; s.textContent="已看"; meta.appendChild(s); }
+    }else if(!visited && badge){ badge.remove(); }
+    if(state.hideVisited && visited){ card.remove(); }
+  }
+  const res = await api("setDealVisited", {id, visited});
+  if(!res){ toast("标记已看失败，请稍后重试"); if(card) card.classList.toggle("visited", !visited); return; }
+  loadStats(); loadSidebar();
+}
+
+/* ================= 列表加载 / 无限滚动 ================= */
+function listParams(offset){
+  const p = {offset, limit:20};
+  if(state.category!=="all") p.category = state.category;
+  if(state.play) p.play = state.play;
+  if(state.search) p.search = state.search;
+  if(state.favorites) p.favorites = true;
+  if(state.hideVisited) p.hideVisited = true;
+  return p;
+}
+async function loadMore(){
+  if(state.loading || !state.hasMore) return;
+  state.loading = true;
+  $("#loadMore").textContent = "加载中…";
+  const res = await api("listDeals", listParams(state.offset));
+  state.loading = false;
+  if(!res){
+    $("#loadMore").textContent = "加载失败，下拉重试";
+    return;
+  }
+  const deals = res.deals||[];
+  state.total = (res.total!==undefined?res.total:state.total);
+  state.hasMore = !!res.has_more;
+  const wrap = $("#cards");
+  if(state.offset===0 && deals.length===0){
+    wrap.innerHTML = `<div class="list-empty" style="grid-column:1/-1">暂无符合条件的线报，换个筛选试试</div>`;
+  }else{
+    const tmp = document.createElement("div");
+    tmp.innerHTML = deals.map(cardHtml).join("");
+    bindCardEvents(tmp);
+    while(tmp.firstChild) wrap.appendChild(tmp.firstChild);
+  }
+  state.offset += deals.length;
+  if(deals.length===0) state.hasMore = false;
+  $("#loadMore").textContent = state.hasMore ? "" : (state.offset>0 ? "— 已经到底了 —" : "");
+  $("#resultCount").textContent = state.total ? `共 ${fmtNum(state.total)} 条` : "";
+  $("#topCount").textContent = state.total ? `共 ${fmtNum(state.total)} 条线报` : "";
+}
+function resetList(){
+  state.offset = 0; state.hasMore = true; state.loading = false;
+  $("#cards").innerHTML = "";
+  $("#loadMore").textContent = "";
+  loadMore();
+}
+const observer = new IntersectionObserver(entries=>{
+  if(entries.some(e=>e.isIntersecting)) loadMore();
+},{rootMargin:"400px"});
+observer.observe($("#sentinel"));
+
+let searchTimer = null;
+$("#searchInput").addEventListener("input", e=>{
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(()=>{
+    state.search = e.target.value.trim();
+    resetList();
+  }, 300);
+});
+$("#catSelect").addEventListener("change", e=>setCategory(e.target.value));
+$("#favToggle").addEventListener("change", e=>{ state.favorites = e.target.checked; resetList(); });
+$("#hideVisitedToggle").addEventListener("change", e=>{ state.hideVisited = e.target.checked; resetList(); });
+</script>
+<script>
+"use strict";
+/* ================= 统计与侧栏 ================= */
+async function loadStats(){
+  const res = await api("getDealStats", {});
+  if(!res) return;
+  state.stats = res;
+  $("#stTotal").textContent = fmtNum(res.total||0);
+  $("#stClaimable").textContent = fmtNum(res.claimable||0);
+  $("#stExpiring").textContent = fmtNum(res.expiring_soon||0);
+  $("#stUnvisited").textContent = fmtNum(res.unvisited||0);
+  renderCategories();
+  renderPlayChips();
+}
+function sideItemHtml(d, extra){
+  const time = fmtTime(d.published_at || d.created_at);
+  const exp = d.expiry_date ? `<span class="exp">截止 ${esc(fmtDateShort(d.expiry_date))}</span>` : "";
+  return `<a class="side-item" href="${d.link?esc(d.link):"javascript:void(0)"}" ${d.link?'target="_blank" rel="noopener noreferrer"':""} data-id="${d.id}">
+    <div class="t">${esc(d.title||"（无标题）")}</div>
+    <div class="m">${exp}${exp&&time?" · ":""}${time?esc(time):""}${extra||""}</div>
+  </a>`;
+}
+function renderSidebar(){
+  const sb = state.sidebar;
+  if(!sb) return;
+  const exp = $("#expiringList"), lat = $("#latestList"), fav = $("#favList");
+  exp.innerHTML = (sb.expiring||[]).length ? sb.expiring.map(d=>sideItemHtml(d)).join("") : `<div class="empty-note">近期没有即将到期的线报</div>`;
+  lat.innerHTML = (sb.latest||[]).length ? sb.latest.map(d=>sideItemHtml(d)).join("") : `<div class="empty-note">暂无最新动态</div>`;
+  fav.innerHTML = (sb.favorites||[]).length ? sb.favorites.map(d=>sideItemHtml(d)).join("") : `<div class="empty-note">还没有收藏，点击卡片右上角 ☆ 收藏</div>`;
+  [exp, lat, fav].forEach(box=>{
+    box.querySelectorAll(".side-item").forEach(el=>{
+      el.addEventListener("click", ()=>{
+        const id = Number(el.dataset.id);
+        if(id) markVisited(id, true);
+      });
+    });
+  });
+}
+async function loadSidebar(){
+  const res = await api("getSidebarData", {});
+  if(!res) return;
+  state.sidebar = res;
+  if(res.stats){ state.stats = Object.assign({}, state.stats, res.stats); }
+  renderSidebar();
+  renderCategories();
+}
+
+/* ================= 立即发现 ================= */
+let discoverTimer = null;
+$("#discoverBtn").addEventListener("click", async ()=>{
+  const btn = $("#discoverBtn");
+  if(btn.disabled) return;
+  const beforeTotal = (state.stats && state.stats.total) || state.total || 0;
+  const res = await api("discoverNow", {});
+  if(!res){ toast("发现启动失败，请稍后重试"); return; }
+  btn.disabled = true;
+  btn.textContent = "正在全网搜索…";
+  clearInterval(discoverTimer);
+  const startedAt = Date.now();
+  discoverTimer = setInterval(async ()=>{
+    const st = await api("getDiscoveryStatus", {});
+    const timeout = Date.now() - startedAt > 5*60*1000;
+    if((st && !st.running) || timeout || !st){
+      clearInterval(discoverTimer);
+      btn.disabled = false;
+      btn.textContent = "🔍 立即发现";
+      await loadStats();
+      await loadSidebar();
+      resetList();
+      // 用刷新后的总数差值计算新加条数
+      setTimeout(async ()=>{
+        const after = await api("getDealStats", {});
+        const afterTotal = after ? (after.total||0) : beforeTotal;
+        const added = Math.max(0, afterTotal - beforeTotal);
+        showBanner(added > 0 ? `✦ 本次发现新加 ${added} 条线报` : `✦ 发现完成，本次新加 0 条线报`);
+      }, 600);
+    }
+  }, 2500);
+});
+
+/* ================= 推送设置 ================= */
+let pushPrefs = {push_interval_hours:6, new_deals:false, only_airdrop:false, only_001:false, expiring_24h:false, favorite_categories:false, daily_digest:false};
+async function loadPushSettings(){
+  const res = await api("getPushSettings", {});
+  const list = $("#chanList");
+  if(!res){
+    list.innerHTML = `<div class="empty-note">推送设置接口暂不可用，请稍后重试</div>`;
+    return;
+  }
+  if(res.prefs){
+    pushPrefs = Object.assign({}, pushPrefs, res.prefs);
+    if(pushPrefs.push_interval_hours===undefined || pushPrefs.push_interval_hours===null) pushPrefs.push_interval_hours = 6;
+  }
+  $$("#prefList input[data-pref]").forEach(cb=>{
+    cb.checked = !!pushPrefs[cb.dataset.pref];
+  });
+  $$("#freqRow .freq-opt").forEach(b=>{
+    b.classList.toggle("active", Number(b.dataset.hours)===Number(pushPrefs.push_interval_hours));
+  });
+  const channels = res.channels||[];
+  if(!channels.length){
+    list.innerHTML = `<div class="empty-note">暂无推送渠道</div>`;
+    return;
+  }
+  list.innerHTML = "";
+  channels.forEach(ch=>{
+    const row = document.createElement("div");
+    row.className = "chan-row";
+    row.innerHTML = `
+      <span class="chan-name">${esc(ch.name||ch.id)}</span>
+      <label class="switch"><input type="checkbox" ${ch.enabled?"checked":""}><span class="sl"></span></label>
+      <input class="chan-cred" type="password" autocomplete="new-password"
+        placeholder="${ch.has_credential ? "已保存凭据" + (ch.credential_mask ? "（"+esc(ch.credential_mask)+"）" : "") + "，留空不改" : "未设置，粘贴凭据"}">
+      <button class="btn save-cred">保存凭据</button>
+      <button class="btn test-chan">测试推送</button>`;
+    const sw = row.querySelector('input[type="checkbox"]');
+    const cred = row.querySelector(".chan-cred");
+    sw.addEventListener("change", async ()=>{
+      const r = await api("savePushChannel", {id:ch.id, enabled:sw.checked});
+      toast(r ? (sw.checked ? `${ch.name||ch.id} 已开启` : `${ch.name||ch.id} 已关闭`) : "保存失败，请稍后重试");
+      if(!r) sw.checked = !sw.checked;
+    });
+    row.querySelector(".save-cred").addEventListener("click", async ()=>{
+      const v = cred.value.trim();
+      if(!v){ toast("凭据为空，未做修改"); return; }
+      const r = await api("savePushChannel", {id:ch.id, credential:v});
+      if(r){ toast(`${ch.name||ch.id} 凭据已保存`); cred.value=""; cred.placeholder="已保存凭据，留空不改"; }
+      else toast("保存失败，请稍后重试");
+    });
+    row.querySelector(".test-chan").addEventListener("click", async ()=>{
+      const r = await api("testPushChannel", {id:ch.id});
+      toast(r ? (r.ok===false ? `测试失败：${r.message||r.error||"请检查凭据"}` : `已向 ${ch.name||ch.id} 发送测试推送`) : "测试失败，接口暂不可用");
+    });
+    list.appendChild(row);
+  });
+}
+async function savePushPrefs(){
+  const r = await api("savePushPrefs", {prefs: pushPrefs});
+  if(!r) toast("保存失败，请稍后重试");
+  return r;
+}
+$$("#prefList input[data-pref]").forEach(cb=>{
+  cb.addEventListener("change", async ()=>{
+    pushPrefs[cb.dataset.pref] = cb.checked;
+    const r = await savePushPrefs();
+    if(r) toast("内容偏好已保存");
+    else cb.checked = !cb.checked;
+  });
+});
+$$("#freqRow .freq-opt").forEach(b=>{
+  b.addEventListener("click", async ()=>{
+    $$("#freqRow .freq-opt").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    pushPrefs.push_interval_hours = Number(b.dataset.hours);
+    const r = await savePushPrefs();
+    toast(r ? "推送频率已保存（只改推送节奏，不改发现节奏）" : "保存失败，请稍后重试");
+  });
+});
+
+/* ================= 代理设置 ================= */
+async function loadProxySettings(){
+  const res = await api("getProxySettings", {});
+  if(!res){
+    $("#proxyStatus").textContent = "代理设置接口暂不可用，请稍后重试";
+    return;
+  }
+  $("#proxyEnabled").checked = !!res.enabled;
+  $("#proxyType").value = (res.type||"http").toLowerCase()==="socks5" ? "socks5" : "http";
+  $("#proxyHost").value = res.host||"";
+  $("#proxyPort").value = (res.port!==undefined && res.port!==null) ? res.port : "";
+  $("#proxyUser").value = res.username||"";
+  $("#proxyPass").value = "";
+  $("#proxyPass").placeholder = res.has_password ? "已保存密码，留空不改" : "留空则不修改已保存密码";
+  $("#proxyStatus").textContent = res.has_password ? "已保存密码（留空不改）。" : "";
+}
+$("#proxySaveBtn").addEventListener("click", async ()=>{
+  const payload = {
+    enabled: $("#proxyEnabled").checked,
+    type: $("#proxyType").value,
+    host: $("#proxyHost").value.trim(),
+    port: $("#proxyPort").value ? Number($("#proxyPort").value) : null,
+    username: $("#proxyUser").value.trim(),
+  };
+  const pw = $("#proxyPass").value;
+  if(pw) payload.password = pw;
+  const r = await api("saveProxySettings", payload);
+  if(r){ toast("代理设置已保存"); $("#proxyPass").value=""; }
+  else toast("保存失败，请稍后重试");
+});
+$("#proxyTestBtn").addEventListener("click", async ()=>{
+  $("#proxyStatus").textContent = "正在测试代理…";
+  const r = await api("testProxy", {});
+  if(!r){ $("#proxyStatus").textContent = "测试失败：接口暂不可用"; return; }
+  const ok = r.ok!==false && !r.error;
+  $("#proxyStatus").textContent = ok
+    ? `代理测试成功${r.message? "："+r.message : ""}${r.ip? "（出口 IP："+r.ip+"）" : ""}`
+    : `代理测试失败${r.message? "："+r.message : ""}${r.error? "："+r.error : ""}`;
+});
+
+/* ================= 空投收益测算器 ================= */
+function updateCalcVisibility(){
+  const show = state.category==="airdrop";
+  $("#calcBox").style.display = show ? "block" : "none";
+  if(show) calcUpdate();
+}
+function calcUpdate(){
+  const fdvM = parseFloat($("#calcFdv").value)||0;
+  const pool = parseFloat($("#calcPool").value)||0;
+  const addr = parseFloat($("#calcAddr").value)||0;
+  const weight = parseFloat((document.querySelector('input[name="calcWeight"]:checked')||{}).value||"1.5");
+  const accts = parseInt((document.querySelector('input[name="calcAccts"]:checked')||{}).value||"1", 10);
+  let per = 0;
+  if(addr>0) per = fdvM*1e6*(pool/100)/addr*weight;
+  const total = per*accts;
+  $("#calcPer").innerHTML = `${fmtMoney(per)} <small>${fmtCny(per)}</small>`;
+  $("#calcTotal").innerHTML = `${fmtMoney(total)} <small>${fmtCny(total)}</small>`;
+}
+["calcFdv","calcPool","calcAddr"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", calcUpdate);
+});
+$$('input[name="calcWeight"], input[name="calcAccts"]').forEach(r=>{
+  r.addEventListener("change", calcUpdate);
+});
+$$("#calcPresets .preset").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    $("#calcFdv").value = b.dataset.fdv;
+    $("#calcPool").value = b.dataset.pool;
+    calcUpdate();
+  });
+});
+
+/* ================= 初始化 ================= */
+(async function init(){
+  renderCategories();
+  renderPlayChips();
+  updateCalcVisibility();
+  calcUpdate();
+  await loadStats();
+  await loadSidebar();
+  resetList();
+})();
+</script>
+</body>
+</html>
