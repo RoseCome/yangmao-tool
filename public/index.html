@@ -178,23 +178,39 @@ a.card-title:hover{color:var(--accent)}
 
 /* ---------- 移动端 ---------- */
 @media (max-width:1080px){
-  .layout{grid-template-columns:1fr;padding:12px}
-  .col-sticky{position:static}
-  .cat-list{flex-direction:row;overflow-x:auto;padding-bottom:4px;gap:6px}
+  .layout{grid-template-columns:minmax(0,1fr);padding:12px}
+  .col-sticky{position:static;min-width:0;overflow:hidden}
+  .side-card{min-width:0}
+  .cat-list{flex-direction:row;overflow-x:auto;padding-bottom:4px;gap:6px;min-width:0;max-width:100%;-webkit-overflow-scrolling:touch}
   .cat-item{flex:none;width:auto;white-space:nowrap;border:1px solid var(--border)}
-  .side-right{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .side-right{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
   .side-right .side-card{margin-bottom:0}
-  .calc-grid{grid-template-columns:1fr 1fr}
+  .calc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:720px){
-  .cards{grid-template-columns:1fr}
-  .calc-grid{grid-template-columns:1fr}
-  .calc-result{grid-template-columns:1fr}
-  .pref-list{grid-template-columns:1fr}
-  .form-grid{grid-template-columns:1fr}
-  .side-right{grid-template-columns:1fr}
+  .cards{grid-template-columns:minmax(0,1fr)}
+  .calc-grid{grid-template-columns:minmax(0,1fr)}
+  .calc-result{grid-template-columns:minmax(0,1fr)}
+  .pref-list{grid-template-columns:minmax(0,1fr)}
+  .form-grid{grid-template-columns:minmax(0,1fr)}
+  .side-right{grid-template-columns:minmax(0,1fr)}
   .top-count{display:none}
   .chan-name{width:100%}
+  .topbar-in{gap:10px;padding:10px 12px}
+  .logo{font-size:17px}
+  .search-wrap input{font-size:16px;padding-left:32px}
+  .search-wrap::before{left:10px}
+  .layout{padding:10px}
+  .card-title{-webkit-line-clamp:2}
+  .card{padding:12px}
+  .toolbar{gap:8px}
+  .toolbar select{flex:1;min-width:0}
+  #toast{bottom:86px}
+}
+@media (max-width:400px){
+  .logo{font-size:15px}
+  .search-wrap input{font-size:15px}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
