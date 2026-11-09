@@ -17,8 +17,8 @@
   --border:#33373f; --gold:#f0b429; --gold-deep:#fbbf24; --gold-bg:#3a2f10;
   --accent:#60a5fa; --shadow:0 1px 3px rgba(0,0,0,.4);
 }
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5}
+html{scroll-behavior:smooth;height:100%}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;height:100%;display:flex;flex-direction:column;overflow:hidden}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 input,select{font-family:inherit;font-size:14px;color:var(--text)}
@@ -27,7 +27,7 @@ input,select{font-family:inherit;font-size:14px;color:var(--text)}
 [data-theme="dark"] ::-webkit-scrollbar-thumb{background:#4b5563}
 
 /* ---------- 顶栏 ---------- */
-.topbar{position:sticky;top:0;z-index:40;background:var(--card);border-bottom:1px solid var(--border)}
+.topbar{flex:none;position:relative;z-index:40;background:var(--card);border-bottom:1px solid var(--border)}
 .topbar-in{width:90%;margin:0 auto;padding:12px 0;display:flex;align-items:center;gap:16px}
 .logo{font-size:20px;font-weight:800;white-space:nowrap;cursor:pointer}
 .logo span{color:var(--gold-deep)}
@@ -38,8 +38,9 @@ input,select{font-family:inherit;font-size:14px;color:var(--text)}
 .top-count{color:var(--muted);font-size:13px;white-space:nowrap}
 
 /* ---------- 三栏 ---------- */
-.layout{width:90%;margin:0 auto;padding:16px 0;display:grid;grid-template-columns:236px minmax(0,1fr) 288px;gap:16px;align-items:start}
-.col-sticky{position:sticky;top:76px}
+.layout{width:90%;margin:0 auto;padding:16px 0;display:grid;grid-template-columns:236px minmax(0,1fr) 288px;gap:16px;align-items:stretch;flex:1 1 auto;min-height:0;overflow:hidden}
+.layout>aside,.layout>main{overflow-y:auto;overflow-x:hidden;min-height:0;overscroll-behavior:contain;padding-bottom:16px}
+.col-sticky{position:static}
 .side-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
 .side-title{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.05em}
 .cat-list{display:flex;flex-direction:column;gap:2px}
@@ -178,7 +179,10 @@ a.card-title:hover{color:var(--accent)}
 
 /* ---------- 移动端 ---------- */
 @media (max-width:1080px){
-  .layout{width:auto;grid-template-columns:minmax(0,1fr);padding:12px}
+  html{height:auto}
+  body{display:block;height:auto;overflow:auto}
+  .layout{width:auto;flex:none;align-items:start;overflow:visible;grid-template-columns:minmax(0,1fr);padding:12px}
+  .layout>aside,.layout>main{overflow:visible;padding-bottom:0}
   .topbar-in{width:auto}
   .col-sticky{position:static;min-width:0;overflow:hidden}
   .side-card{min-width:0}
@@ -274,7 +278,6 @@ a.card-title:hover{color:var(--accent)}
     <!-- 列表页 -->
     <section id="viewList" class="view show">
       <div class="toolbar">
-        <select id="catSelect" aria-label="分类筛选"></select>
         <span class="result-count" id="resultCount"></span>
       </div>
       <div class="chips" id="playChips" style="display:none"></div>
@@ -527,10 +530,22 @@ $("#themeBtn").addEventListener("click", ()=>{
   const cur = document.documentElement.getAttribute("data-theme");
   applyTheme(cur==="dark" ? "light" : "dark");
 });
-$("#backTop").addEventListener("click", ()=>window.scrollTo({top:0, behavior:"smooth"}));
-window.addEventListener("scroll", ()=>{
-  $("#backTop").classList.toggle("show", window.scrollY > 300);
-}, {passive:true});
+const mainEl = () => $(".layout>main");
+function scrollMainTop(smooth){
+  const m = mainEl();
+  if(m) m.scrollTo({top:0, behavior: smooth?"smooth":"auto"});
+  else window.scrollTo({top:0});
+}
+$("#backTop").addEventListener("click", ()=>scrollMainTop(true));
+if(mainEl()){
+  mainEl().addEventListener("scroll", ()=>{
+    $("#backTop").classList.toggle("show", mainEl().scrollTop > 300);
+  }, {passive:true});
+}else{
+  window.addEventListener("scroll", ()=>{
+    $("#backTop").classList.toggle("show", window.scrollY > 300);
+  }, {passive:true});
+}
 
 /* ================= 状态 ================= */
 const state = {
@@ -547,7 +562,7 @@ function showView(name){
   });
   $("#navPush").classList.toggle("active", name==="Push");
   $("#navProxy").classList.toggle("active", name==="Proxy");
-  window.scrollTo({top:0});
+  $(".layout>main")?.scrollTo({top:0});
 }
 $("#navPush").addEventListener("click", ()=>{ showView("Push"); loadPushSettings(); });
 $("#navProxy").addEventListener("click", ()=>{ showView("Proxy"); loadProxySettings(); });
@@ -579,12 +594,6 @@ function renderCategories(){
   list.querySelectorAll(".cat-item").forEach(btn=>{
     btn.addEventListener("click", ()=>setCategory(btn.dataset.cat));
   });
-  // 顶部下拉同步
-  const sel = $("#catSelect");
-  sel.innerHTML = `<option value="all">全部分类</option>` + CATEGORIES.map(c=>
-    `<option value="${c.id}" ${state.category===c.id?"selected":""}>${esc(c.label)}${counts[c.id]!==undefined?` (${fmtNum(counts[c.id])})`:""}</option>`
-  ).join("");
-  sel.value = state.category;
 }
 function setCategory(cat){
   state.category = cat;
@@ -779,7 +788,6 @@ $("#searchInput").addEventListener("input", e=>{
     resetList();
   }, 300);
 });
-$("#catSelect").addEventListener("change", e=>setCategory(e.target.value));
 $("#favToggle").addEventListener("change", e=>{ state.favorites = e.target.checked; resetList(); });
 $("#hideVisitedToggle").addEventListener("change", e=>{ state.hideVisited = e.target.checked; resetList(); });
 </script>
