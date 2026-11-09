@@ -326,6 +326,7 @@ if (b.favorites) { where.push(`pinned = 1`);}
 if (b.hideVisited) { where.push(`visited = 0`);}
 if (b.filter === 'claimable') { where.push(`status = 'todo'`);}
 if (b.filter === 'unvisited') { where.push(`visited = 0`);}
+if (b.filter === 'visited') { where.push(`visited = 1`);}
 if (b.filter === 'expiring') {
   where.push(`status = 'todo' AND expiry_date IS NOT NULL AND expiry_date >=? AND expiry_date <=?`);
   params.push(todayStr(0), todayStr(7));

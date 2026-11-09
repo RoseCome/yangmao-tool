@@ -64,6 +64,7 @@ input,select{font-family:inherit;font-size:14px;color:var(--text)}
 .cat-sep{height:1px;background:var(--border);margin:8px 2px}
 .fav-item{margin-top:2px}
 .card.flash{outline:2px solid var(--gold);box-shadow:0 0 0 4px rgba(232,169,28,.22);transition:box-shadow .2s}
+.side-cnt{font-size:12px;font-weight:400;color:var(--muted);margin-left:6px}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:.15s}
 .stat:hover{border-color:var(--gold)}
@@ -277,16 +278,6 @@ a.card-title:hover{color:var(--accent)}
           <div class="stat" data-filter="unvisited" data-stat="unvisited"><b id="stUnvisited">–</b><span>未看</span></div>
         </div>
       </div>
-
-      <div class="side-card">
-        <div class="side-title">筛选</div>
-        <div class="toggle-row"><span>⭐ 只看收藏</span>
-          <label class="switch"><input type="checkbox" id="favToggle"><span class="sl"></span></label>
-        </div>
-        <div class="toggle-row"><span>🙈 隐藏已看</span>
-          <label class="switch"><input type="checkbox" id="hideVisitedToggle"><span class="sl"></span></label>
-        </div>
-      </div>
     </div>
   </aside>
 
@@ -333,6 +324,22 @@ a.card-title:hover{color:var(--accent)}
       <div class="cards" id="cards"></div>
       <div id="sentinel"></div>
       <div class="load-more" id="loadMore"></div>
+    </section>
+
+    <!-- 已看页 -->
+    <section id="viewVisited" class="view">
+      <div class="page-head"><button class="back-btn" data-back>← 返回列表</button><h2>👁 已看</h2></div>
+      <div class="set-card">
+        <h3>显示设置</h3>
+        <div class="toggle-row"><span>🙈 隐藏已看</span>
+          <label class="switch"><input type="checkbox" id="hideVisitedToggle"><span class="sl"></span></label>
+        </div>
+        <div class="empty-note" style="text-align:left;padding-top:6px">开启后，列表和「全部线报」里不再出现已看过的条目；「已看」这里照样能看到全部已看。</div>
+      </div>
+      <div class="set-card">
+        <h3>已看条目 <span id="visitedCount" class="side-cnt"></span></h3>
+        <div id="visitedList"><div class="empty-note">加载中…</div></div>
+      </div>
     </section>
 
     <!-- 推送设置页 -->
@@ -555,7 +562,7 @@ if(mainEl()){
 
 /* ================= 状态 ================= */
 const state = {
-  category:"all", play:null, search:"", statFilter:"",
+  category:"all", play:null, search:"", statFilter:"", view:"List",
   favorites:false, hideVisited:false,
   offset:0, loading:false, hasMore:true, total:0,
   stats:null, sidebar:null,
@@ -563,12 +570,14 @@ const state = {
 
 /* ================= 视图切换 ================= */
 function showView(name){
-  [["List","list"],["Push","push"],["Proxy","proxy"]].forEach(([v,k])=>{
+  state.view = name;
+  ["List","Visited","Push","Proxy"].forEach(v=>{
     $("#view"+v).classList.toggle("show", v===name);
   });
   $("#navPush").classList.toggle("active", name==="Push");
   $("#navProxy").classList.toggle("active", name==="Proxy");
   closeSettings();
+  $(".layout>main")?.scrollTo({top:0});
 }
 $("#navPush").addEventListener("click", ()=>{ showView("Push"); loadPushSettings(); });
 $("#navProxy").addEventListener("click", ()=>{ showView("Proxy"); loadProxySettings(); });
@@ -606,8 +615,8 @@ function applyStatFilter(f){
 document.querySelectorAll("#statsGrid .stat").forEach(el=>{
   el.addEventListener("click", ()=>applyStatFilter(el.dataset.filter||""));
 });
-$$("[data-back]").forEach(b=>b.addEventListener("click", ()=>showView("List")));
-$("#logoBtn").addEventListener("click", ()=>{ showView("List"); });
+$$("[data-back]").forEach(b=>b.addEventListener("click", ()=>{ showView("List"); renderCategories(); }));
+$("#logoBtn").addEventListener("click", ()=>{ showView("List"); renderCategories(); });
 
 /* ================= 分类导航 ================= */
 function countsFrom(source){
@@ -626,19 +635,23 @@ function renderCategories(){
   const counts = Object.keys(countsFrom(sbCats)).length ? countsFrom(sbCats) : countsFrom(stCats);
   const total = state.stats ? state.stats.total : (state.total||0);
   const list = $("#catList");
-  let html = `<button class="cat-item ${state.category==="all"&&!state.favorites?"active":""}" data-cat="all"><span>全部线报</span><span class="cnt">${fmtNum(total)}</span></button>`;
+  let html = `<button class="cat-item ${state.category==="all"&&!state.favorites&&state.view==="List"?"active":""}" data-cat="all"><span>全部线报</span><span class="cnt">${fmtNum(total)}</span></button>`;
   CATEGORIES.forEach(c=>{
-    html += `<button class="cat-item ${state.category===c.id&&!state.favorites?"active":""}" data-cat="${c.id}"><span>${esc(c.label)}</span><span class="cnt">${fmtNum(counts[c.id]||0)}</span></button>`;
+    html += `<button class="cat-item ${state.category===c.id&&!state.favorites&&state.view==="List"?"active":""}" data-cat="${c.id}"><span>${esc(c.label)}</span><span class="cnt">${fmtNum(counts[c.id]||0)}</span></button>`;
   });
   const favCount = state.sidebar && state.sidebar.favoritesCount !== undefined
     ? state.sidebar.favoritesCount
     : ((state.sidebar && state.sidebar.favorites) || []).length;
+  const visitedCount = state.stats ? Math.max(0, (state.stats.total||0) - (state.stats.unvisited||0)) : 0;
   html += `<div class="cat-sep"></div>
-  <button class="cat-item fav-item ${state.favorites?"active":""}" data-fav="1"><span>⭐ 我的收藏</span><span class="cnt">${fmtNum(favCount)}</span></button>`;
+  <button class="cat-item fav-item ${state.favorites&&state.view==="List"?"active":""}" data-fav="1"><span>⭐ 我的收藏</span><span class="cnt">${fmtNum(favCount)}</span></button>
+  <button class="cat-item visited-item ${state.view==="Visited"?"active":""}" data-visited="1"><span>👁 已看</span><span class="cnt">${fmtNum(visitedCount)}</span></button>`;
   list.innerHTML = html;
   list.querySelectorAll(".cat-item").forEach(btn=>{
     if(btn.dataset.fav){
       btn.addEventListener("click", ()=>setFavorites(true));
+    }else if(btn.dataset.visited){
+      btn.addEventListener("click", ()=>{ showView("Visited"); renderCategories(); renderVisited(); });
     }else{
       btn.addEventListener("click", ()=>setCategory(btn.dataset.cat));
     }
@@ -646,7 +659,6 @@ function renderCategories(){
 }
 function setFavorites(on){
   state.favorites = !!on;
-  $("#favToggle").checked = state.favorites;
   state.play = null;
   showView("List");
   renderCategories();
@@ -658,7 +670,6 @@ function setCategory(cat){
   state.category = cat;
   state.play = null;
   state.favorites = false;
-  $("#favToggle").checked = false;
   showView("List");
   renderCategories();
   renderPlayChips();
@@ -848,8 +859,10 @@ $("#searchInput").addEventListener("input", e=>{
     resetList();
   }, 300);
 });
-$("#favToggle").addEventListener("change", e=>setFavorites(e.target.checked));
-$("#hideVisitedToggle").addEventListener("change", e=>{ state.hideVisited = e.target.checked; resetList(); });
+$("#hideVisitedToggle").addEventListener("change", e=>{
+  state.hideVisited = e.target.checked;
+  resetList();
+});
 </script>
 <script>
 "use strict";
@@ -892,8 +905,7 @@ async function focusDeal(id){
   state.category = "all"; state.play = null; state.search = "";
   state.statFilter = ""; state.favorites = false; state.hideVisited = false;
   const si = $("#searchInput"); if(si) si.value = "";
-  const ft = $("#favToggle"); if(ft) ft.checked = false;
-  const hv = $("#hideVisitedToggle"); if(hv) hv.checked = false;
+  const hv = $("#hideVisitedToggle"); if(hv) hv.checked = state.hideVisited;
   document.querySelectorAll("#statsGrid .stat").forEach(el=>{
     el.classList.toggle("active", (el.dataset.filter||"") === "");
   });
@@ -916,6 +928,25 @@ async function focusDeal(id){
   setTimeout(()=>el.classList.remove("flash"), 2200);
   markVisited(id, true);
 }
+/* ================= 已看页 ================= */
+async function renderVisited(){
+  const box = $("#visitedList"), cnt = $("#visitedCount");
+  box.innerHTML = `<div class="empty-note">加载中…</div>`;
+  const res = await api("listDeals", {filter:"visited", limit:100, offset:0});
+  if(!res){ box.innerHTML = `<div class="empty-note">加载失败，稍后重试</div>`; return; }
+  const list = res.deals || [];
+  if(cnt) cnt.textContent = res.total ? `${fmtNum(res.total)} 条` : "";
+  if(!list.length){ box.innerHTML = `<div class="empty-note">还没有已看条目。点卡片标题或右上角眼睛就会记为已看。</div>`; return; }
+  box.innerHTML = list.map(d=>sideItemHtml(d)).join("");
+  box.querySelectorAll(".side-item").forEach(el=>{
+    el.addEventListener("click", e=>{
+      e.preventDefault();
+      const id = Number(el.dataset.id);
+      if(id) focusDeal(id);
+    });
+  });
+}
+
 async function loadSidebar(){
   const res = await api("getSidebarData", {});
   if(!res) return;
