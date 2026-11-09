@@ -13,6 +13,7 @@ import { DatabaseSync } from 'node:sqlite';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 3000);
 const DB_PATH = path.resolve(process.env.DATABASE_PATH || './data/app.db');
+const CTP_URL = process.env.CTP_URL || 'http://127.0.0.1:3210';
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
@@ -44,7 +45,8 @@ CREATE TABLE IF NOT EXISTS deals (
   fdv_usd REAL,
   pool_ratio REAL,
   active_addresses INTEGER,
-  worth_cny REAL
+  worth_cny REAL,
+  forwarded_ctp INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS discovery_runs (
   id INTEGER PRIMARY KEY,
@@ -99,6 +101,10 @@ CREATE TABLE IF NOT EXISTS admin_auth (
 // 旧库迁移：deals 表若缺 worth_cny 列则补上（不改动已有数据）。
 if (!db.prepare(`PRAGMA table_info(deals)`).all().some((c) => c.name === 'worth_cny')) {
   db.exec(`ALTER TABLE deals ADD COLUMN worth_cny REAL`);
+}
+// 旧库迁移：forwarded_ctp（空投转发到看板的标记：0=未转发 1=已转发 2=看板已有同名卡片）
+if (!db.prepare(`PRAGMA table_info(deals)`).all().some((c) => c.name === 'forwarded_ctp')) {
+  db.exec(`ALTER TABLE deals ADD COLUMN forwarded_ctp INTEGER NOT NULL DEFAULT 0`);
 }
 
 // ---------- 渠道默认值 ----------
@@ -308,12 +314,76 @@ const expiring_soon = db.prepare(
 `SELECT COUNT(*) c FROM deals WHERE status = 'todo' AND expiry_date IS NOT NULL AND expiry_date >=? AND expiry_date <=?`)
 .get(todayStr(0), todayStr(7)).c;
 const byCategory = {};
-for (const r of db.prepare(`SELECT category, COUNT(*) c FROM deals GROUP BY category`).all()) byCategory[r.category] = r.c;
+for (const r of db.prepare(`SELECT category, COUNT(*) c FROM deals WHERE visited = 0 GROUP BY category`).all()) byCategory[r.category] = r.c;
 const byPlay = {};
-for (const r of db.prepare(`SELECT play_types FROM deals`).all()) {
+for (const r of db.prepare(`SELECT play_types FROM deals WHERE visited = 0`).all()) {
 for (const p of safeJsonArray(r.play_types)) byPlay[p] = (byPlay[p] || 0) + 1;
 }
 return { total, claimable, expiring_soon, unvisited, byCategory, byPlay};
+}
+
+// ---------- 转发空投线报到空投看板（CTP，同容器 127.0.0.1:3210） ----------
+// 接口约定：POST /api/database/sync {customFeeds:[...]}，CTP 按 feed.id 去重合并，
+// 看板卡片由它自己的巡检/跟进流程自动创建。forwarded_ctp: 0=未转发 1=已转发 2=看板已有同名卡片
+async function forwardAirdrops() {
+  const rows = db.prepare(
+    `SELECT * FROM deals WHERE category = 'airdrop' AND status = 'todo' AND forwarded_ctp = 0
+     AND (expiry_date IS NULL OR expiry_date >= ?) ORDER BY id DESC`).all(todayStr(0));
+  if (!rows.length) return { ok: true, forwarded: 0, deduped: 0 };
+  let existing = [];
+  try {
+    const r = await fetch(`${CTP_URL}/api/projects/progress`, { signal: AbortSignal.timeout(8000) });
+    if (r.ok) existing = await r.json();
+  } catch { /* 看板不在线时照常推送，靠 feed.id 去重兜底 */ }
+  const names = existing.map((p) => String(p.name || '').toLowerCase());
+  const feeds = [];
+  let deduped = 0;
+  for (const d of rows) {
+    const name = ctpProjectName(d);
+    if (!name) continue;
+    const low = name.toLowerCase();
+    if (names.some((n) => n === low || n.includes(low) || low.includes(n))) {
+      db.prepare(`UPDATE deals SET forwarded_ctp = 2 WHERE id = ?`).run(d.id);
+      deduped++;
+      continue;
+    }
+    feeds.push({
+      id: `yangmao-d${d.id}`,
+      type: 'airdrop',
+      title: d.title,
+      actionUrl: d.link || '',
+      symbolTag: name,
+      airdropMeta: {
+        projectName: name,
+        stage: 'Live',
+        ecosystem: '全网羊毛线报',
+        estimatedReward: d.benefit || '',
+        tasks: d.conditions ? [d.conditions] : [],
+        socials: { taskPortal: d.link || '' },
+      },
+    });
+  }
+  if (feeds.length) {
+    const r = await fetch(`${CTP_URL}/api/database/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customFeeds: feeds }),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!r.ok) throw Object.assign(new Error(`CTP sync HTTP ${r.status}`), { code: 502 });
+  }
+  db.prepare(
+    `UPDATE deals SET forwarded_ctp = 1, updated_at = ?
+     WHERE category = 'airdrop' AND status = 'todo' AND forwarded_ctp = 0
+     AND (expiry_date IS NULL OR expiry_date >= ?)`).run(now(), todayStr(0));
+  return { ok: true, forwarded: feeds.length, deduped };
+}
+
+// 从线报标题/平台名提取项目名，如 "InfiniFi 官方 X @infiniFi" → "InfiniFi"
+function ctpProjectName(d) {
+  let base = String(d.platform || '').split(/\s+(?:官方|Official|Twitter|X\s*@|@)/i)[0].trim();
+  if (!base || base.length < 2) base = String(d.title || '').replace(/^空投\s*/, '').split(/\s+/)[0].trim();
+  return base.replace(/[（(].*$/, '').trim();
 }
 
 const actions = {
@@ -448,6 +518,8 @@ last_run: last? { id: last.id, started_at: last.started_at, added: last.added, s
 
 saveDiscoveredDeals(b = {}) { return saveDiscovered(b.deals || []);},
 importDiscoveredDeals(b = {}) { return saveDiscovered(b.deals || []);},
+
+forwardAirdrops(b = {}) { return forwardAirdrops(b); },
 
 recategorizeDeals() {
   // 只纠正“明显错类”：空投/eSIM 是强规则；其余规则只在当前为 other 时才动，
@@ -643,8 +715,13 @@ insertDeal({ title: d.title, platform: d.platform, category: d.category,
 benefit: d.benefit, conditions: d.conditions, link: d.link, notes: d.notes,
 expiry_date: d.expiry_date, tags, play_types: play,
 fdv_usd: d.fdv_usd?? null, pool_ratio: d.pool_ratio?? null,
-active_addresses: d.active_addresses?? null, worth_cny: d.worth_cny?? null});
+active_addresses: d.active_addresses?? null, worth_cny: d.worth_cny?? null,
+forwarded_ctp: 0});
 added++;
+}
+if (added > 0) {
+  // 有新线报入库 → 3 秒后把空投类转发给空投看板（失败只记日志，不影响入库）
+  setTimeout(() => { forwardAirdrops().catch((e) => console.error('[ctp-forward]', e.message)); }, 3000);
 }
 return { added, skipped};
 }
@@ -696,7 +773,9 @@ const server = http.createServer(async (req, res) => {
       const file = path.normalize(path.join(PUBLIC_DIR, rel));
       if (!file.startsWith(PUBLIC_DIR)) return sendJson(res, 403, { ok: false, error: 'forbidden' });
       if (fs.existsSync(file) && fs.statSync(file).isFile()) {
-        res.writeHead(200, { 'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream' });
+        const headers = { 'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream' };
+        if (file.endsWith('.html')) headers['Cache-Control'] = 'no-cache';
+        res.writeHead(200, headers);
         fs.createReadStream(file).pipe(res);
         return;
       }

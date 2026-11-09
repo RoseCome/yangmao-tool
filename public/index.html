@@ -272,8 +272,6 @@ a.card-title:hover{color:var(--accent)}
       <div class="side-card">
         <div class="side-title">数据统计</div>
         <div class="stats-grid" id="statsGrid">
-          <div class="stat active" data-filter="" data-stat="total"><b id="stTotal">–</b><span>全部线报</span></div>
-          <div class="stat" data-filter="claimable" data-stat="claimable"><b id="stClaimable">–</b><span>可领取</span></div>
           <div class="stat" data-filter="expiring" data-stat="expiring"><b id="stExpiring">–</b><span>即将到期</span></div>
           <div class="stat" data-filter="unvisited" data-stat="unvisited"><b id="stUnvisited">–</b><span>未看</span></div>
         </div>
@@ -871,8 +869,6 @@ async function loadStats(){
   const res = await api("getDealStats", {});
   if(!res) return;
   state.stats = res;
-  $("#stTotal").textContent = fmtNum(res.total||0);
-  $("#stClaimable").textContent = fmtNum(res.claimable||0);
   $("#stExpiring").textContent = fmtNum(res.expiring_soon||0);
   $("#stUnvisited").textContent = fmtNum(res.unvisited||0);
   renderCategories();
