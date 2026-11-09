@@ -792,3 +792,7 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`yangmao-tool listening on 0.0.0.0:${PORT} (db: ${DB_PATH})`);
 });
+
+// 启动后 15s 及每 30 分钟：把未转发的空投推给看板（幂等，forwarded_ctp 已标记的会跳过）
+setTimeout(() => { forwardAirdrops().catch((e) => console.error('[ctp-forward]', e.message)); }, 15000);
+setInterval(() => { forwardAirdrops().catch((e) => console.error('[ctp-forward]', e.message)); }, 30 * 60 * 1000);
