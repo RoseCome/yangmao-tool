@@ -35,11 +35,23 @@ input,select{font-family:inherit;font-size:14px;color:var(--text)}
 .search-wrap input{width:100%;padding:9px 12px 9px 36px;border:1px solid var(--border);border-radius:999px;background:var(--card2);outline:none}
 .search-wrap input:focus{border-color:var(--gold);background:var(--card)}
 .search-wrap::before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px}
-.top-count{color:var(--muted);font-size:13px;white-space:nowrap}
+.top-actions{display:flex;align-items:center;gap:8px;margin-left:auto;flex:none}
+.btn-top{padding:9px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card2);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap}
+.btn-top:hover{border-color:var(--gold)}
+.btn-top:disabled{opacity:.7;cursor:not-allowed}
+.btn-top.primary{border:0;background:linear-gradient(180deg,#f5c542,#e8a91c);color:#3a2a00;font-weight:800;box-shadow:0 2px 8px rgba(232,169,28,.35)}
+.set-wrap{position:relative}
+.set-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:158px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16);padding:6px;display:flex;flex-direction:column;gap:4px;z-index:80}
+.set-menu[hidden]{display:none}
+.set-menu button{text-align:left;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:var(--text);font-size:14px}
+.set-menu button:hover{background:var(--card2)}
+.set-menu button.active{background:var(--gold-bg);color:var(--gold-deep);font-weight:700}
 
 /* ---------- 三栏 ---------- */
 .layout{width:90%;margin:0 auto;padding:16px 0;display:grid;grid-template-columns:236px minmax(0,1fr) 288px;gap:16px;align-items:stretch;flex:1 1 auto;min-height:0;overflow:hidden}
 .layout>aside,.layout>main{overflow-y:auto;overflow-x:hidden;min-height:0;overscroll-behavior:contain;padding-bottom:16px}
+.layout>aside{scrollbar-width:none;-ms-overflow-style:none}
+.layout>aside::-webkit-scrollbar{display:none;width:0;height:0}
 .col-sticky{position:static}
 .side-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
 .side-title{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.05em}
@@ -50,7 +62,10 @@ input,select{font-family:inherit;font-size:14px;color:var(--text)}
 .cat-item .cnt{font-size:12px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:1px 8px}
 .cat-item.active .cnt{color:var(--gold-deep);border-color:var(--gold)}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:.15s}
+.stat:hover{border-color:var(--gold)}
+.stat.active{border-color:var(--gold);background:var(--gold-bg)}
+.stat.active b{color:var(--gold-deep)}
 .stat b{display:block;font-size:20px;line-height:1.2}
 .stat span{font-size:12px;color:var(--muted)}
 .btn-discover{width:100%;padding:12px;border:0;border-radius:10px;background:linear-gradient(180deg,#f5c542,#e8a91c);color:#3a2a00;font-size:15px;font-weight:800;box-shadow:0 2px 8px rgba(232,169,28,.4)}
@@ -76,8 +91,6 @@ input,select{font-family:inherit;font-size:14px;color:var(--text)}
 .empty-note{font-size:13px;color:var(--muted);padding:6px}
 
 /* ---------- 中间：工具条 ---------- */
-.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-.toolbar select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card)}
 .result-count{font-size:13px;color:var(--muted)}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .chip{padding:6px 12px;border:1px solid var(--border);border-radius:999px;background:var(--card);font-size:13px;cursor:pointer;color:var(--text)}
@@ -199,17 +212,16 @@ a.card-title:hover{color:var(--accent)}
   .pref-list{grid-template-columns:minmax(0,1fr)}
   .form-grid{grid-template-columns:minmax(0,1fr)}
   .side-right{grid-template-columns:minmax(0,1fr)}
-  .top-count{display:none}
   .chan-name{width:100%}
-  .topbar-in{gap:10px;padding:10px 12px}
+  .topbar-in{gap:10px;padding:10px 12px;flex-wrap:wrap}
+  .search-wrap{order:3;flex-basis:100%;max-width:none}
+  .btn-top{padding:8px 11px;font-size:13px}
   .logo{font-size:17px}
   .search-wrap input{font-size:16px;padding-left:32px}
   .search-wrap::before{left:10px}
   .layout{padding:10px}
   .card-title{-webkit-line-clamp:2}
   .card{padding:12px}
-  .toolbar{gap:8px}
-  .toolbar select{flex:1;min-width:0}
   #toast{bottom:86px}
 }
 @media (max-width:400px){
@@ -227,7 +239,16 @@ a.card-title:hover{color:var(--accent)}
     <div class="search-wrap">
       <input id="searchInput" type="search" placeholder="搜索标题 / 平台 / 福利…" autocomplete="off">
     </div>
-    <div class="top-count" id="topCount"></div>
+    <div class="top-actions">
+      <button class="btn-top primary" id="discoverBtn">🔍 全网检索线报</button>
+      <div class="set-wrap">
+        <button class="btn-top" id="settingsBtn" aria-haspopup="true" aria-expanded="false">⚙ 设置</button>
+        <div class="set-menu" id="settingsMenu" hidden>
+          <button id="navPush">🔔 推送设置</button>
+          <button id="navProxy">🌐 代理设置</button>
+        </div>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -247,28 +268,21 @@ a.card-title:hover{color:var(--accent)}
       <div class="side-card">
         <div class="side-title">数据统计</div>
         <div class="stats-grid" id="statsGrid">
-          <div class="stat"><b id="stTotal">–</b><span>全部线报</span></div>
-          <div class="stat"><b id="stClaimable">–</b><span>可领取</span></div>
-          <div class="stat"><b id="stExpiring">–</b><span>即将到期</span></div>
-          <div class="stat"><b id="stUnvisited">–</b><span>未看</span></div>
+          <div class="stat active" data-filter="" data-stat="total"><b id="stTotal">–</b><span>全部线报</span></div>
+          <div class="stat" data-filter="claimable" data-stat="claimable"><b id="stClaimable">–</b><span>可领取</span></div>
+          <div class="stat" data-filter="expiring" data-stat="expiring"><b id="stExpiring">–</b><span>即将到期</span></div>
+          <div class="stat" data-filter="unvisited" data-stat="unvisited"><b id="stUnvisited">–</b><span>未看</span></div>
         </div>
       </div>
 
       <div class="side-card">
-        <button class="btn-discover" id="discoverBtn">🔍 立即发现</button>
-        <div style="height:10px"></div>
+        <div class="side-title">筛选</div>
         <div class="toggle-row"><span>⭐ 只看收藏</span>
           <label class="switch"><input type="checkbox" id="favToggle"><span class="sl"></span></label>
         </div>
         <div class="toggle-row"><span>🙈 隐藏已看</span>
           <label class="switch"><input type="checkbox" id="hideVisitedToggle"><span class="sl"></span></label>
         </div>
-      </div>
-
-      <div class="side-card">
-        <div class="side-title">设置</div>
-        <button class="side-link" id="navPush">🔔 推送设置</button>
-        <button class="side-link" id="navProxy">🌐 代理设置</button>
       </div>
     </div>
   </aside>
@@ -277,9 +291,6 @@ a.card-title:hover{color:var(--accent)}
   <main>
     <!-- 列表页 -->
     <section id="viewList" class="view show">
-      <div class="toolbar">
-        <span class="result-count" id="resultCount"></span>
-      </div>
       <div class="chips" id="playChips" style="display:none"></div>
 
       <!-- 空投收益测算器：仅空投分类显示 -->
@@ -549,7 +560,7 @@ if(mainEl()){
 
 /* ================= 状态 ================= */
 const state = {
-  category:"all", play:null, search:"",
+  category:"all", play:null, search:"", statFilter:"",
   favorites:false, hideVisited:false,
   offset:0, loading:false, hasMore:true, total:0,
   stats:null, sidebar:null,
@@ -557,15 +568,49 @@ const state = {
 
 /* ================= 视图切换 ================= */
 function showView(name){
-  ["List","Push","Proxy"].forEach(v=>{
+  [["List","list"],["Push","push"],["Proxy","proxy"]].forEach(([v,k])=>{
     $("#view"+v).classList.toggle("show", v===name);
   });
   $("#navPush").classList.toggle("active", name==="Push");
   $("#navProxy").classList.toggle("active", name==="Proxy");
-  $(".layout>main")?.scrollTo({top:0});
+  closeSettings();
 }
 $("#navPush").addEventListener("click", ()=>{ showView("Push"); loadPushSettings(); });
 $("#navProxy").addEventListener("click", ()=>{ showView("Proxy"); loadProxySettings(); });
+
+/* ================= 顶栏设置菜单 ================= */
+function closeSettings(){
+  const m = $("#settingsMenu");
+  if(m) m.hidden = true;
+  $("#settingsBtn")?.setAttribute("aria-expanded", "false");
+}
+$("#settingsBtn").addEventListener("click", e=>{
+  e.stopPropagation();
+  const m = $("#settingsMenu");
+  const open = m.hidden;
+  m.hidden = !open;
+  $("#settingsBtn").setAttribute("aria-expanded", String(open));
+});
+document.addEventListener("click", e=>{
+  if(!e.target.closest(".set-wrap")) closeSettings();
+});
+document.addEventListener("keydown", e=>{ if(e.key === "Escape") closeSettings(); });
+
+/* ================= 统计卡筛选 ================= */
+function applyStatFilter(f){
+  state.statFilter = f || "";
+  document.querySelectorAll("#statsGrid .stat").forEach(el=>{
+    el.classList.toggle("active", (el.dataset.filter||"") === state.statFilter);
+  });
+  state.play = null;
+  showView("List");
+  renderPlayChips();
+  updateCalcVisibility();
+  resetList();
+}
+document.querySelectorAll("#statsGrid .stat").forEach(el=>{
+  el.addEventListener("click", ()=>applyStatFilter(el.dataset.filter||""));
+});
 $$("[data-back]").forEach(b=>b.addEventListener("click", ()=>showView("List")));
 $("#logoBtn").addEventListener("click", ()=>{ showView("List"); });
 
@@ -739,6 +784,7 @@ function listParams(offset){
   if(state.search) p.search = state.search;
   if(state.favorites) p.favorites = true;
   if(state.hideVisited) p.hideVisited = true;
+  if(state.statFilter) p.filter = state.statFilter;
   return p;
 }
 async function loadMore(){
@@ -766,8 +812,6 @@ async function loadMore(){
   state.offset += deals.length;
   if(deals.length===0) state.hasMore = false;
   $("#loadMore").textContent = state.hasMore ? "" : (state.offset>0 ? "— 已经到底了 —" : "");
-  $("#resultCount").textContent = state.total ? `共 ${fmtNum(state.total)} 条` : "";
-  $("#topCount").textContent = state.total ? `共 ${fmtNum(state.total)} 条线报` : "";
 }
 function resetList(){
   state.offset = 0; state.hasMore = true; state.loading = false;
@@ -856,7 +900,7 @@ $("#discoverBtn").addEventListener("click", async ()=>{
     if((st && !st.running) || timeout || !st){
       clearInterval(discoverTimer);
       btn.disabled = false;
-      btn.textContent = "🔍 立即发现";
+      btn.textContent = "🔍 全网检索线报";
       await loadStats();
       await loadSidebar();
       resetList();

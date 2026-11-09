@@ -324,11 +324,17 @@ const where = [], params = [];
 if (b.category) { where.push(`category =?`); params.push(b.category);}
 if (b.favorites) { where.push(`pinned = 1`);}
 if (b.hideVisited) { where.push(`visited = 0`);}
+if (b.filter === 'claimable') { where.push(`status = 'todo'`);}
+if (b.filter === 'unvisited') { where.push(`visited = 0`);}
+if (b.filter === 'expiring') {
+  where.push(`status = 'todo' AND expiry_date IS NOT NULL AND expiry_date >=? AND expiry_date <=?`);
+  params.push(todayStr(0), todayStr(7));
+}
 if (b.search) {
 where.push(`(title LIKE? OR platform LIKE? OR benefit LIKE? OR conditions LIKE?)`);
 const q = `%${b.search}%`; params.push(q, q, q, q);
 }
-const sql = `SELECT * FROM deals ${where.length? 'WHERE ' + where.join(' AND '): ''} ORDER BY id DESC`;
+const sql = `SELECT * FROM deals ${where.length? 'WHERE ' + where.join(' AND '): ''} ORDER BY ${b.filter === 'expiring' ? 'expiry_date ASC' : 'id DESC'}`;
 let rows = db.prepare(sql).all(...params).map(dealOut);
 if (b.play) rows = rows.filter((d) => d.play_types.includes(b.play));
 const total = rows.length;
