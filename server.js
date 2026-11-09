@@ -287,7 +287,9 @@ function filterForPrefs(deals, prefs) {
     const tomorrow = todayStr(1);
     list = list.filter((d) => d.expiry_date && d.expiry_date <= tomorrow);
   }
-  // only_001：前端未定义具体语义，暂不做过滤（仅保存开关），避免误删推送。
+  // only_001：前端开关文案是“只推0.01撸”——只推标题 / 权益 / 条件里出现 0.01 的条目
+  // （157 条种子数据里共 6 条：84、85、94、96、103、152；85 是 0.99 元买卡、条件里最低实付 0.01 元，也算在内）。
+  if (prefs.only_001) list = list.filter((d) => /0\.01/.test([d.title, d.benefit, d.conditions].filter(Boolean).join(' ')));
   return list;
 }
 function dealLine(d) {
