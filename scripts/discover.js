@@ -1,6 +1,10 @@
-// 空投自动发现：抓 airdrops.io 最新列表（前 3 页），解析成线报入库。
-// 入库走服务端 /api/saveDiscoveredDeals（去重、触发转发给空投看板都在服务端做）。
-// 不编造条目：抓不到、解析不出就如实记 0。
+// 空投/线报自动发现 · 多源版
+// 来源（2026-11 实测可直连抓取；403/停放的聚合站不收录，不编造数据）：
+//   airdrops.io  最新 5 页 + confirmed/telegram/hot/testnet 分类页（WordPress 服务端渲染）
+//   t.me/s/airdrops_io       airdrops.io 官方电报频道（空投快讯）
+//   t.me/s/airdropalertcom   AirdropAlert 官方电报频道（空投快讯）
+//   t.me/s/zuanke8           赚客吧官方电报频道（中文羊毛线报）
+// 入库走服务端 /api/saveDiscoveredDeals（去重、转发空投看板都在服务端做）。
 import { DatabaseSync } from 'node:sqlite';
 import path from 'node:path';
 
@@ -8,6 +12,7 @@ const DB_PATH = path.resolve(process.env.DATABASE_PATH || './data/app.db');
 const PORT = Number(process.env.PORT || 3000);
 const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0 Safari/537.36';
 
+// ---------- airdrops.io ----------
 const ACTION_ZH = [
   [/^(telegram|t\.me)$/i, '加入官方电报群（Telegram）'],
   [/^(discord)$/i, '加入官方 Discord 服务器'],
@@ -44,13 +49,11 @@ const ACTION_ZH = [
   [/join .+ drop/i, '参加官方空投活动页'],
   [/quest/i, '完成平台任务（Quests）'],
 ];
-
 function zhAction(raw) {
   for (const [re, zh] of ACTION_ZH) if (re.test(raw)) return zh;
   return `完成「${raw}」操作（详情见项目页）`;
 }
-
-function parseAirdropsHtml(html) {
+function parseAirdropsIo(html) {
   // split 后每段开头还带着 article 的属性串，先切掉第一个 '>' 之后才是正文
   const arts = html.split('<article').slice(1).map((a) => a.slice(a.indexOf('>') + 1));
   const items = [];
@@ -60,22 +63,58 @@ function parseAirdropsHtml(html) {
     const name = h[1].replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').trim();
     if (!name || /latest airdrops/i.test(name)) continue;
     const link = a.match(/href="(https:\/\/airdrops\.io\/[a-z0-9-]+\/)"/i);
-    if (!link) continue;
+    if (!link || /\/(visit|blog|airdrop-alert)\//.test(link[1])) continue;
     const plain = a.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
     const am = plain.match(/Actions:\s*([^]*?)CLAIM AIRDROP/i);
     const actions = am ? am[1].split(/,|&/).map((x) => x.trim()).filter(Boolean).slice(0, 6) : [];
-    const confirmed = /Confirmed/i.test(plain);
-    const ongoing = /Ongoing/i.test(plain);
     const brief = plain.replace(/^[^A-Za-z\u4e00-\u9fff]{0,20}/, '').slice(0, 140);
-    items.push({ name, url: link[1], actions, confirmed, ongoing, brief });
+    items.push({ name, url: link[1], actions, confirmed: /Confirmed/i.test(plain), ongoing: /Ongoing/i.test(plain), brief });
   }
   return items;
 }
 
-async function fetchPage(url) {
-  const resp = await fetch(url, { headers: { 'user-agent': UA }, signal: AbortSignal.timeout(20000) });
-  if (!resp.ok) throw new Error(`${url} HTTP ${resp.status}`);
-  return parseAirdropsHtml(await resp.text());
+// ---------- Telegram 频道预览页 ----------
+function unescapeText(s) {
+  return s.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#036;/g, '$').replace(/&#39;/g, "'");
+}
+function tgCleanText(body) {
+  let t = body.replace(/<br\s*\/?>/g, '\n').replace(/<[^>]+>/g, '');
+  t = unescapeText(t);
+  return t.replace(/\n{2,}/g, '\n').trim();
+}
+function parseTelegram(html) {
+  const blocks = html.split('<div class="tgme_widget_message ');
+  const items = [];
+  for (const b of blocks.slice(1)) {
+    const pid = b.match(/data-post="([^"]+)"/);
+    if (!pid) continue;
+    const m = b.match(/tgme_widget_message_text js-message_text" dir="auto">([\s\S]*?)<\/div>/);
+    if (!m) continue;
+    const ext = b.match(/href="(https?:\/\/(?!t\.me\/|telegram\.me\/)[^"]+)"/);
+    items.push({ id: pid[1], text: tgCleanText(m[1]), extLink: ext ? ext[1] : null });
+  }
+  return items;
+}
+
+// 中文线报分类（按内容关键词，与服务端 recategorize 规则一致）
+function classifyZh(text) {
+  const rules = [
+    [/空投/i, 'airdrop'], [/eSIM|esim/i, 'esim'],
+    [/话费|流量|运营商|移动|联通|电信/i, 'telecom'],
+    [/银行|工行|建行|农行|中行|信用卡/i, 'bank'],
+    [/ChatGPT|GPT|Gemini|Claude|人工智能/i, 'ai'],
+    [/云服务器|VPS|免费服务器|甲骨文|Oracle/i, 'cloud'],
+    [/抽奖|免单|优惠券|红包|立减|满减|京东|淘宝|拼多多|美团|外卖/i, 'shopping'],
+    [/脚本|插件|工具|接码/i, 'scripts'],
+  ];
+  for (const [re, cat] of rules) if (re.test(text)) return cat;
+  return 'other';
+}
+
+function fetchTxt(url) {
+  return fetch(url, { headers: { 'user-agent': UA, 'Accept-Language': 'en,zh;q=0.8' }, signal: AbortSignal.timeout(20000) })
+    .then(async (r) => { if (!r.ok) throw new Error(`${url} HTTP ${r.status}`); return r.text(); });
 }
 
 async function main() {
@@ -88,46 +127,90 @@ async function main() {
       .run(patch.status, Date.now(), patch.added ?? 0, patch.skipped ?? 0,
         [cur.note, patch.note].filter(Boolean).join(' | ') || null, runId);
   };
+  const summary = [];
   try {
-    const pages = ['https://airdrops.io/latest/', 'https://airdrops.io/latest/page/2/', 'https://airdrops.io/latest/page/3/'];
-    const results = await Promise.allSettled(pages.map(fetchPage));
+    const deals = [];
     const seen = new Set();
-    const items = [];
-    for (const r of results) {
-      if (r.status !== 'fulfilled') { console.error('[discover] 页面抓取失败:', r.reason?.message || r.reason); continue; }
-      for (const it of r.value) {
-        if (seen.has(it.url)) continue;
-        seen.add(it.url);
-        items.push(it);
+    const add = (d) => { if (d && d.link && !seen.has(d.link)) { seen.add(d.link); deals.push(d); } };
+
+    // 1) airdrops.io（9 个页面）
+    const ioPages = [
+      'https://airdrops.io/latest/', 'https://airdrops.io/latest/page/2/', 'https://airdrops.io/latest/page/3/',
+      'https://airdrops.io/latest/page/4/', 'https://airdrops.io/latest/page/5/',
+      'https://airdrops.io/confirmed/', 'https://airdrops.io/telegram/', 'https://airdrops.io/hot/', 'https://airdrops.io/testnet/',
+    ];
+    let ioOk = 0;
+    await Promise.allSettled(ioPages.map(async (u) => {
+      const items = parseAirdropsIo(await fetchTxt(u));
+      if (items.length) ioOk++;
+      for (const it of items) {
+        add({
+          title: `空投 ${it.name}${it.confirmed ? '（已确认）' : it.ongoing ? '（进行中）' : ''}`,
+          platform: `${it.name} / airdrops.io`,
+          category: 'airdrop', status: 'todo',
+          benefit: it.brief || (it.confirmed ? '官方已确认的空投活动' : 'airdrops.io 收录的空投活动'),
+          conditions: it.actions.length ? it.actions.map(zhAction).join('；') : '打开活动页按提示完成任务',
+          link: it.url, expiry_date: null, tags: ['airdrops.io'],
+        });
       }
-    }
-    console.log(`[discover] 抓到 ${items.length} 条（${results.filter(r => r.status === 'fulfilled').length}/3 页成功）`);
-    if (!items.length) { finish({ status: 'done', note: 'airdrops.io 未抓到条目' }); return; }
-
-    const deals = items.map((it) => ({
-      title: `空投 ${it.name}${it.confirmed ? '（已确认）' : it.ongoing ? '（进行中）' : ''}`,
-      platform: `${it.name} / airdrops.io`,
-      category: 'airdrop',
-      status: 'todo',
-      benefit: it.brief || (it.confirmed ? '官方已确认的空投活动' : 'airdrops.io 收录的空投活动'),
-      conditions: it.actions.length ? it.actions.map(zhAction).join('；') : '打开活动页按提示完成任务',
-      link: it.url,
-      expiry_date: null,
-      tags: ['airdrops.io'],
     }));
+    summary.push(`airdrops.io ${ioOk}/9 页`);
 
-    // 服务端入库（link 去重 + 自动转发给空投看板都在服务端完成）
+    // 2) Telegram 空投频道
+    const AIRDROP_KW = /airdrop|claim|confirmed|reward|points|testnet|tge|snapshot|air drop|空投/i;
+    const tgChannels = ['airdrops_io', 'airdropalertcom'];
+    let tgOk = 0;
+    await Promise.allSettled(tgChannels.map(async (ch) => {
+      const msgs = parseTelegram(await fetchTxt(`https://t.me/s/${ch}`));
+      const kept = msgs.filter((m) => m.text.length >= 40 && AIRDROP_KW.test(m.text));
+      if (kept.length) tgOk++;
+      for (const m of kept) {
+        const first = m.text.split('\n')[0].replace(/\s+/g, ' ').trim().slice(0, 60);
+        add({
+          title: `空投速报：${first}`,
+          platform: `Telegram @${ch}`,
+          category: 'airdrop', status: 'todo',
+          benefit: m.text.slice(0, 300),
+          conditions: m.extLink ? `打开消息中的项目链接参与：${m.extLink}` : '打开消息查看参与方式',
+          link: `https://t.me/${m.id}`, expiry_date: null, tags: ['telegram', ch],
+        });
+      }
+    }));
+    summary.push(`电报空投频道 ${tgOk}/2`);
+
+    // 3) 赚客吧中文线报频道
+    const ZK_KW = /http|#小程序|#公众号|红包|优惠券|立减|免单|抽奖|羊毛|白嫖|活动|领取|注册/;
+    try {
+      const msgs = parseTelegram(await fetchTxt('https://t.me/s/zuanke8'));
+      const kept = msgs.filter((m) => m.text.length >= 20 && ZK_KW.test(m.text));
+      summary.push(`赚客吧 ${kept.length}/${msgs.length} 条`);
+      for (const m of kept) {
+        const first = m.text.split('\n')[0].replace(/\s+/g, ' ').trim().slice(0, 60);
+        add({
+          title: `线报：${first}`,
+          platform: 'Telegram @zuanke8',
+          category: classifyZh(m.text), status: 'todo',
+          benefit: m.text.slice(0, 300),
+          conditions: m.extLink ? `打开链接参与：${m.extLink}` : '按线报内容操作（详见消息）',
+          link: `https://t.me/${m.id}`, expiry_date: null, tags: ['telegram', 'zuanke8'],
+        });
+      }
+    } catch (e) { summary.push(`赚客吧失败(${String(e?.message || e).slice(0, 40)})`); }
+
+    console.log(`[discover] 抓取汇总：${summary.join('，')}，去重后待入库 ${deals.length} 条`);
+    if (!deals.length) { finish({ status: 'done', note: `各源均未抓到条目：${summary.join('，')}` }); return; }
+
     const resp = await fetch(`http://127.0.0.1:${PORT}/api/saveDiscoveredDeals`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ deals }),
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(60000),
     });
     const data = await resp.json();
     if (!resp.ok || data.ok === false) throw new Error('saveDiscoveredDeals HTTP ' + resp.status + ' ' + JSON.stringify(data).slice(0, 200));
     const added = Number(data.added ?? 0);
     const skipped = Number(data.skipped ?? 0);
     console.log(`[discover] 入库 ${added} 条，跳过重复 ${skipped} 条`);
-    finish({ status: 'done', added, skipped, note: `airdrops.io 扫描 ${items.length} 条` });
+    finish({ status: 'done', added, skipped, note: `多源扫描：${summary.join('，')}` });
   } catch (e) {
     console.error('[discover] 失败:', e?.message || e);
     finish({ status: 'failed', note: String(e?.message || e).slice(0, 200) });
