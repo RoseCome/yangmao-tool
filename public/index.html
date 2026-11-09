@@ -61,6 +61,9 @@ input,select{font-family:inherit;font-size:14px;color:var(--text)}
 .cat-item.active{background:var(--gold-bg);color:var(--gold-deep);font-weight:700}
 .cat-item .cnt{font-size:12px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:1px 8px}
 .cat-item.active .cnt{color:var(--gold-deep);border-color:var(--gold)}
+.cat-sep{height:1px;background:var(--border);margin:8px 2px}
+.fav-item{margin-top:2px}
+.card.flash{outline:2px solid var(--gold);box-shadow:0 0 0 4px rgba(232,169,28,.22);transition:box-shadow .2s}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:.15s}
 .stat:hover{border-color:var(--gold)}
@@ -395,16 +398,8 @@ a.card-title:hover{color:var(--accent)}
   <!-- ================= 右栏 ================= -->
   <aside class="side-right">
     <div class="side-card">
-      <div class="side-title">⏰ 即将到期</div>
-      <div id="expiringList"><div class="empty-note">加载中…</div></div>
-    </div>
-    <div class="side-card">
       <div class="side-title">🆕 最新动态</div>
       <div id="latestList"><div class="empty-note">加载中…</div></div>
-    </div>
-    <div class="side-card">
-      <div class="side-title">⭐ 我的收藏</div>
-      <div id="favList"><div class="empty-note">加载中…</div></div>
     </div>
   </aside>
 </div>
@@ -631,18 +626,39 @@ function renderCategories(){
   const counts = Object.keys(countsFrom(sbCats)).length ? countsFrom(sbCats) : countsFrom(stCats);
   const total = state.stats ? state.stats.total : (state.total||0);
   const list = $("#catList");
-  let html = `<button class="cat-item ${state.category==="all"?"active":""}" data-cat="all"><span>全部线报</span><span class="cnt">${fmtNum(total)}</span></button>`;
+  let html = `<button class="cat-item ${state.category==="all"&&!state.favorites?"active":""}" data-cat="all"><span>全部线报</span><span class="cnt">${fmtNum(total)}</span></button>`;
   CATEGORIES.forEach(c=>{
-    html += `<button class="cat-item ${state.category===c.id?"active":""}" data-cat="${c.id}"><span>${esc(c.label)}</span><span class="cnt">${fmtNum(counts[c.id]||0)}</span></button>`;
+    html += `<button class="cat-item ${state.category===c.id&&!state.favorites?"active":""}" data-cat="${c.id}"><span>${esc(c.label)}</span><span class="cnt">${fmtNum(counts[c.id]||0)}</span></button>`;
   });
+  const favCount = state.sidebar && state.sidebar.favoritesCount !== undefined
+    ? state.sidebar.favoritesCount
+    : ((state.sidebar && state.sidebar.favorites) || []).length;
+  html += `<div class="cat-sep"></div>
+  <button class="cat-item fav-item ${state.favorites?"active":""}" data-fav="1"><span>⭐ 我的收藏</span><span class="cnt">${fmtNum(favCount)}</span></button>`;
   list.innerHTML = html;
   list.querySelectorAll(".cat-item").forEach(btn=>{
-    btn.addEventListener("click", ()=>setCategory(btn.dataset.cat));
+    if(btn.dataset.fav){
+      btn.addEventListener("click", ()=>setFavorites(true));
+    }else{
+      btn.addEventListener("click", ()=>setCategory(btn.dataset.cat));
+    }
   });
+}
+function setFavorites(on){
+  state.favorites = !!on;
+  $("#favToggle").checked = state.favorites;
+  state.play = null;
+  showView("List");
+  renderCategories();
+  renderPlayChips();
+  updateCalcVisibility();
+  resetList();
 }
 function setCategory(cat){
   state.category = cat;
   state.play = null;
+  state.favorites = false;
+  $("#favToggle").checked = false;
   showView("List");
   renderCategories();
   renderPlayChips();
@@ -832,7 +848,7 @@ $("#searchInput").addEventListener("input", e=>{
     resetList();
   }, 300);
 });
-$("#favToggle").addEventListener("change", e=>{ state.favorites = e.target.checked; resetList(); });
+$("#favToggle").addEventListener("change", e=>setFavorites(e.target.checked));
 $("#hideVisitedToggle").addEventListener("change", e=>{ state.hideVisited = e.target.checked; resetList(); });
 </script>
 <script>
@@ -860,18 +876,45 @@ function sideItemHtml(d, extra){
 function renderSidebar(){
   const sb = state.sidebar;
   if(!sb) return;
-  const exp = $("#expiringList"), lat = $("#latestList"), fav = $("#favList");
-  exp.innerHTML = (sb.expiring||[]).length ? sb.expiring.map(d=>sideItemHtml(d)).join("") : `<div class="empty-note">近期没有即将到期的线报</div>`;
+  const lat = $("#latestList");
   lat.innerHTML = (sb.latest||[]).length ? sb.latest.map(d=>sideItemHtml(d)).join("") : `<div class="empty-note">暂无最新动态</div>`;
-  fav.innerHTML = (sb.favorites||[]).length ? sb.favorites.map(d=>sideItemHtml(d)).join("") : `<div class="empty-note">还没有收藏，点击卡片右上角 ☆ 收藏</div>`;
-  [exp, lat, fav].forEach(box=>{
-    box.querySelectorAll(".side-item").forEach(el=>{
-      el.addEventListener("click", ()=>{
-        const id = Number(el.dataset.id);
-        if(id) markVisited(id, true);
-      });
+  lat.querySelectorAll(".side-item").forEach(el=>{
+    el.addEventListener("click", e=>{
+      e.preventDefault();
+      const id = Number(el.dataset.id);
+      if(id) focusDeal(id);
     });
   });
+}
+
+/* 在列表里定位某条线报：清空筛选 → 加载 → 滚动居中 → 高亮 */
+async function focusDeal(id){
+  state.category = "all"; state.play = null; state.search = "";
+  state.statFilter = ""; state.favorites = false; state.hideVisited = false;
+  const si = $("#searchInput"); if(si) si.value = "";
+  const ft = $("#favToggle"); if(ft) ft.checked = false;
+  const hv = $("#hideVisitedToggle"); if(hv) hv.checked = false;
+  document.querySelectorAll("#statsGrid .stat").forEach(el=>{
+    el.classList.toggle("active", (el.dataset.filter||"") === "");
+  });
+  showView("List");
+  renderCategories();
+  renderPlayChips();
+  updateCalcVisibility();
+  resetList();
+  const sel = `#cards .card[data-id="${id}"]`;
+  let el = null;
+  for(let i=0;i<8;i++){
+    el = document.querySelector(sel);
+    if(el) break;
+    await new Promise(r=>setTimeout(r,450));
+    if(state.hasMore) await loadMore();
+  }
+  if(!el){ toast("这条线报已不在当前列表里"); return; }
+  el.scrollIntoView({block:"center", behavior:"smooth"});
+  el.classList.add("flash");
+  setTimeout(()=>el.classList.remove("flash"), 2200);
+  markVisited(id, true);
 }
 async function loadSidebar(){
   const res = await api("getSidebarData", {});

@@ -353,7 +353,8 @@ const expiring = db.prepare(
 .all(todayStr(0), todayStr(7));
 const latest = db.prepare(`SELECT id, title, created_at FROM deals ORDER BY id DESC LIMIT 5`).all();
 const favorites = db.prepare(`SELECT id, title FROM deals WHERE pinned = 1 ORDER BY id DESC LIMIT 20`).all();
-return { stats, categories, expiring, latest, favorites};
+const favoritesCount = db.prepare(`SELECT COUNT(*) c FROM deals WHERE pinned = 1`).get().c;
+return { stats, categories, expiring, latest, favorites, favoritesCount};
 },
 
 addDeal(b = {}) {
