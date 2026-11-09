@@ -106,6 +106,8 @@ if (!db.prepare(`PRAGMA table_info(deals)`).all().some((c) => c.name === 'worth_
 if (!db.prepare(`PRAGMA table_info(deals)`).all().some((c) => c.name === 'forwarded_ctp')) {
   db.exec(`ALTER TABLE deals ADD COLUMN forwarded_ctp INTEGER NOT NULL DEFAULT 0`);
 }
+// 元数据 kv（空投上次推送时间等）
+db.exec(`CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT)`);
 
 // ---------- 渠道默认值 ----------
 const CHANNEL_DEFS = [
@@ -306,6 +308,9 @@ function dealLine(d) {
 const CATEGORY_LABELS = { airdrop: '空投', ai: 'AI', esim: 'eSIM', cloud: '云/VPS', scripts: '脚本/工具',
 bank: '银行', shopping: '购物', telecom: '运营商', other: '其他'};
 
+const getMeta = (k) => db.prepare(`SELECT value FROM meta WHERE key = ?`).get(k)?.value ?? null;
+const setMeta = (k, v) => db.prepare(`INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`).run(k, String(v));
+
 function getDealStats() {
 const total = db.prepare(`SELECT COUNT(*) c FROM deals`).get().c;
 const claimable = db.prepare(`SELECT COUNT(*) c FROM deals WHERE status = 'todo'`).get().c;
@@ -319,7 +324,16 @@ const byPlay = {};
 for (const r of db.prepare(`SELECT play_types FROM deals WHERE visited = 0`).all()) {
 for (const p of safeJsonArray(r.play_types)) byPlay[p] = (byPlay[p] || 0) + 1;
 }
-return { total, claimable, expiring_soon, unvisited, byCategory, byPlay};
+const ctpInfo = (() => {
+  let last = null;
+  try { last = JSON.parse(getMeta('ctp_last_push') || 'null'); } catch { /* ignore */ }
+  const pushed = db.prepare(`SELECT COUNT(*) c FROM deals WHERE forwarded_ctp = 1`).get().c;
+  const pending = db.prepare(
+    `SELECT COUNT(*) c FROM deals WHERE category = 'airdrop' AND status = 'todo' AND forwarded_ctp = 0
+     AND (expiry_date IS NULL OR expiry_date >= ?)`).get(todayStr(0)).c;
+  return { lastPushAt: last?.ts || null, pushed, pending };
+})();
+return { total, claimable, expiring_soon, unvisited, byCategory, byPlay, ctp: ctpInfo};
 }
 
 // ---------- 转发空投线报到空投看板（CTP，同容器 127.0.0.1:3210） ----------
@@ -376,6 +390,7 @@ async function forwardAirdrops() {
     `UPDATE deals SET forwarded_ctp = 1, updated_at = ?
      WHERE category = 'airdrop' AND status = 'todo' AND forwarded_ctp = 0
      AND (expiry_date IS NULL OR expiry_date >= ?)`).run(now(), todayStr(0));
+  setMeta('ctp_last_push', JSON.stringify({ ts: Date.now(), pushed: feeds.length, deduped }));
   return { ok: true, forwarded: feeds.length, deduped };
 }
 

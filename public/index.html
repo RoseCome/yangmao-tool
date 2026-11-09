@@ -275,6 +275,7 @@ a.card-title:hover{color:var(--accent)}
           <div class="stat" data-filter="expiring" data-stat="expiring"><b id="stExpiring">–</b><span>即将到期</span></div>
           <div class="stat" data-filter="unvisited" data-stat="unvisited"><b id="stUnvisited">–</b><span>未看</span></div>
         </div>
+        <div id="ctpPushNote" class="empty-note" style="font-size:11px;padding:4px 6px 0"></div>
       </div>
     </div>
   </aside>
@@ -871,6 +872,16 @@ async function loadStats(){
   state.stats = res;
   $("#stExpiring").textContent = fmtNum(res.expiring_soon||0);
   $("#stUnvisited").textContent = fmtNum(res.unvisited||0);
+  const ctpNote = $("#ctpPushNote");
+  if (ctpNote){
+    const ctp = res.ctp || {};
+    if (!ctp.lastPushAt) ctpNote.textContent = "📡 空投推送：尚未推送";
+    else {
+      const d = new Date(ctp.lastPushAt);
+      const pad = n => String(n).padStart(2,"0");
+      ctpNote.textContent = `📡 空投推送：上次 ${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())} · 已推 ${ctp.pushed||0}` + (ctp.pending ? ` · 待推 ${ctp.pending}` : "");
+    }
+  }
   renderCategories();
   renderPlayChips();
 }
