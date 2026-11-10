@@ -799,7 +799,12 @@ async function markVisited(id, visited){
     }else if(!visited && badge){ badge.remove(); }
     if(state.hideVisited && visited){ card.remove(); }
   }
-  const res = await api("setDealVisited", {id, visited});
+  let res = await api("setDealVisited", {id, visited});
+  if(!res){
+    // 服务重启/网络抖动等瞬态失败：等 1.2 秒自动重试一次，避免"点了没反应"
+    await new Promise(r=>setTimeout(r, 1200));
+    res = await api("setDealVisited", {id, visited});
+  }
   if(!res){ toast("标记已看失败，请稍后重试"); if(card) card.classList.toggle("visited", !visited); return; }
   loadStats(); loadSidebar();
 }
