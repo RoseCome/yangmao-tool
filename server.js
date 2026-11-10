@@ -436,7 +436,7 @@ getDealStats() { return getDealStats();},
 
 getSidebarData() {
 const stats = getDealStats();
-const categories = db.prepare(`SELECT category, COUNT(*) c FROM deals GROUP BY category ORDER BY c DESC`)
+const categories = db.prepare(`SELECT category, COUNT(*) c FROM deals WHERE visited = 0 GROUP BY category ORDER BY c DESC`)
 .all().map((r) => ({ id: r.category, label: CATEGORY_LABELS[r.category] || r.category, count: r.c}));
 const expiring = db.prepare(
 `SELECT id, title, expiry_date FROM deals WHERE status='todo' AND expiry_date IS NOT NULL AND expiry_date >=? AND expiry_date <=? ORDER BY expiry_date ASC LIMIT 10`)
@@ -764,7 +764,7 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=u
 
 function sendJson(res, code, obj) {
   const body = JSON.stringify(obj);
-  res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-cache' });
   res.end(body);
 }
 function readBody(req) {

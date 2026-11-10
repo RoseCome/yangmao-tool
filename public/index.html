@@ -632,9 +632,9 @@ function renderCategories(){
   const sbCats = state.sidebar && state.sidebar.categories;
   const stCats = state.stats && state.stats.byCategory;
   const counts = Object.keys(countsFrom(sbCats)).length ? countsFrom(sbCats) : countsFrom(stCats);
-  const total = state.stats ? state.stats.total : (state.total||0);
+  const unvisitedTotal = state.stats ? (state.stats.unvisited||0) : 0;
   const list = $("#catList");
-  let html = `<button class="cat-item ${state.category==="all"&&!state.favorites&&state.view==="List"?"active":""}" data-cat="all"><span>全部线报</span><span class="cnt">${fmtNum(total)}</span></button>`;
+  let html = `<button class="cat-item ${state.category==="all"&&!state.favorites&&state.view==="List"?"active":""}" data-cat="all"><span>全部线报</span><span class="cnt">${fmtNum(unvisitedTotal)}</span></button>`;
   CATEGORIES.forEach(c=>{
     html += `<button class="cat-item ${state.category===c.id&&!state.favorites&&state.view==="List"?"active":""}" data-cat="${c.id}"><span>${esc(c.label)}</span><span class="cnt">${fmtNum(counts[c.id]||0)}</span></button>`;
   });
