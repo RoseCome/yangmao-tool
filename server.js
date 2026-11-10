@@ -424,7 +424,8 @@ if (b.search) {
 where.push(`(title LIKE? OR platform LIKE? OR benefit LIKE? OR conditions LIKE?)`);
 const q = `%${b.search}%`; params.push(q, q, q, q);
 }
-const sql = `SELECT * FROM deals ${where.length? 'WHERE ' + where.join(' AND '): ''} ORDER BY ${b.filter === 'expiring' ? 'expiry_date ASC' : 'id DESC'}`;
+const orderBy = b.filter === 'expiring' ? 'expiry_date ASC' : (b.filter === 'visited' ? 'visited_at DESC' : 'id DESC');
+const sql = `SELECT * FROM deals ${where.length? 'WHERE ' + where.join(' AND '): ''} ORDER BY ${orderBy}`;
 let rows = db.prepare(sql).all(...params).map(dealOut);
 if (b.play) rows = rows.filter((d) => d.play_types.includes(b.play));
 const total = rows.length;

@@ -892,8 +892,8 @@ async function loadStats(){
   renderCategories();
   renderPlayChips();
 }
-function sideItemHtml(d, extra){
-  const time = fmtTime(d.published_at || d.created_at);
+function sideItemHtml(d, extra, timeField){
+  const time = fmtTime(d[timeField] || d.published_at || d.created_at);
   const exp = d.expiry_date ? `<span class="exp">截止 ${esc(fmtDateShort(d.expiry_date))}</span>` : "";
   return `<a class="side-item" href="${d.link?esc(d.link):"javascript:void(0)"}" ${d.link?'target="_blank" rel="noopener noreferrer"':""} data-id="${d.id}">
     <div class="t">${esc(d.title||"（无标题）")}</div>
@@ -951,7 +951,7 @@ async function renderVisited(){
   const list = res.deals || [];
   if(cnt) cnt.textContent = res.total ? `${fmtNum(res.total)} 条` : "";
   if(!list.length){ box.innerHTML = `<div class="empty-note">还没有已看条目。点卡片标题或右上角眼睛就会记为已看。</div>`; return; }
-  box.innerHTML = list.map(d=>sideItemHtml(d)).join("");
+  box.innerHTML = list.map(d=>sideItemHtml(d, "", "visited_at")).join("");
   box.querySelectorAll(".side-item").forEach(el=>{
     el.addEventListener("click", e=>{
       e.preventDefault();
