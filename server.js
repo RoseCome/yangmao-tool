@@ -3,6 +3,7 @@
 // 数据：DATABASE_PATH 环境变量，默认 ./data/app.db。
 // 注意：本文件不含任何真实凭据、手机号、邮箱；凭据只存在 data/app.db（已 gitignore）。
 import http from 'node:http';
+import crypto from 'node:crypto';
 import net from 'node:net';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -182,9 +183,12 @@ function insertDeal(d) {
     (title, platform, category, benefit, conditions, link, notes, expiry_date, status,
      pinned, visited, visited_at, created_at, updated_at, published_at,
      tags, play_types, est_earn_low, est_earn_high, fdv_usd, pool_ratio, active_addresses, worth_cny)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
     .run(d.title, d.platform || '', d.category || 'other', d.benefit || '', d.conditions || '',
       d.link || null, d.notes || null, d.expiry_date || null, d.status || 'todo',
+      d.pinned !== undefined ? (d.pinned ? 1 : 0) : 0,
+      d.visited !== undefined ? (d.visited ? 1 : 0) : 0,
+      d.visited ? (d.visited_at ? Number(d.visited_at) || t : t) : null,
       t, t, d.published_at ?? null, toJsonArray(tags), toJsonArray(play),
       est ? est.low : (d.est_earn_low ?? null), est ? est.high : (d.est_earn_high ?? null),
       d.fdv_usd ?? null, d.pool_ratio ?? null, d.active_addresses ?? null, d.worth_cny ?? null);
@@ -306,7 +310,7 @@ function dealLine(d) {
 
 // ---------- 动作实现 ----------
 const CATEGORY_LABELS = { airdrop: '空投', ai: 'AI', esim: 'eSIM', cloud: '云/VPS', scripts: '脚本/工具',
-bank: '银行', shopping: '购物', telecom: '运营商', other: '其他'};
+bank: '银行', shopping: '购物', telecom: '运营商', office: '办公', game: '游戏', other: '其他'};
 
 const getMeta = (k) => db.prepare(`SELECT value FROM meta WHERE key = ?`).get(k)?.value ?? null;
 const setMeta = (k, v) => db.prepare(`INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`).run(k, String(v));
@@ -718,17 +722,27 @@ for (const d of Array.isArray(list)? list: []) {
 if (!d ||!d.title) { skipped++; continue;}
 let exists;
 if (d.link) {
-exists = db.prepare(`SELECT 1 FROM deals WHERE link =? LIMIT 1`).get(d.link);
+exists = db.prepare(`SELECT id FROM deals WHERE link =? LIMIT 1`).get(d.link);
 } else {
-exists = db.prepare(`SELECT 1 FROM deals WHERE title =? AND conditions =? LIMIT 1`)
+exists = db.prepare(`SELECT id FROM deals WHERE title =? AND conditions =? LIMIT 1`)
 .get(d.title, d.conditions || '');
 }
-if (exists) { skipped++; continue;}
+if (exists) {
+  // 幂等 upsert：来源带已看/置顶/状态时同步到已有记录（种子导入跨设备同步用）
+  const sets = [], params = [];
+  if (d.visited === true) { sets.push('visited = 1');
+    sets.push('visited_at = ?'); params.push(d.visited_at ? Number(d.visited_at) || now() : now()); } // 只标已看，不回退
+  if (d.pinned !== undefined) { sets.push('pinned = ?'); params.push(d.pinned ? 1 : 0); }
+  if (d.status !== undefined && d.status) { sets.push('status = ?'); params.push(d.status); }
+  if (sets.length) db.prepare(`UPDATE deals SET ${sets.join(', ')}, updated_at = ? WHERE id = ?`).run(...params, now(), exists.id);
+  skipped++; continue;
+}
 const tags = d.tags?.length? d.tags: undefined;
 const play = d.play_types?.length? d.play_types: undefined;
 insertDeal({ title: d.title, platform: d.platform, category: d.category,
 benefit: d.benefit, conditions: d.conditions, link: d.link, notes: d.notes,
 expiry_date: d.expiry_date, tags, play_types: play,
+visited: d.visited, visited_at: d.visited_at, pinned: d.pinned, status: d.status,
 fdv_usd: d.fdv_usd?? null, pool_ratio: d.pool_ratio?? null,
 active_addresses: d.active_addresses?? null, worth_cny: d.worth_cny?? null,
 forwarded_ctp: 0});
@@ -807,6 +821,26 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`yangmao-tool listening on 0.0.0.0:${PORT} (db: ${DB_PATH})`);
 });
+
+// 种子文件监视：data/deals-seed.json 内容变化（mtime 变化）即自动 upsert 导入。
+// 用途：外部（GitHub 同步）更新种子后，更新中心拉代码落盘 → 服务自动把新增/已看状态导入库，幂等。
+function importSeedIfChanged() {
+  try {
+    const f = path.join(__dirname, 'data', 'deals-seed.json');
+    if (!fs.existsSync(f)) return;
+    const m = crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
+    if (getMeta('seed_hash') === m) return;
+    const list = JSON.parse(fs.readFileSync(f, 'utf8'));
+    if (!Array.isArray(list) || !list.length) { setMeta('seed_hash', m); return; }
+    const r = saveDiscovered(list);
+    setMeta('seed_hash', m);
+    console.log(`[seed] 种子导入：新增 ${r.added} 条，重复/同步 ${r.skipped} 条`);
+  } catch (e) {
+    console.error('[seed]', e.message);
+  }
+}
+importSeedIfChanged(); // 启动即检查一次（覆盖更新中心刚部署完的场景）
+setInterval(importSeedIfChanged, 10 * 60 * 1000);
 
 // 启动后 15s 及每 30 分钟：把未转发的空投推给看板（幂等，forwarded_ctp 已标记的会跳过）
 setTimeout(() => { forwardAirdrops().catch((e) => console.error('[ctp-forward]', e.message)); }, 15000);
