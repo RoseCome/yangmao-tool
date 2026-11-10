@@ -19,7 +19,25 @@ if (d.started) {
   }
 }
 
-// 3. 刷新过期状态
+// 3. 拉取 GitHub 上最新种子（外部设备每 6h 推一次；公开仓库 raw 下载无需凭据）。
+//    落盘后由 server 的种子监视器在 10 分钟内自动 upsert 导入。
+try {
+  const r = await fetch('https://raw.githubusercontent.com/RoseCome/yangmao-tool/main/data/deals-seed.json');
+  if (r.ok) {
+    const txt = await r.text();
+    const list = JSON.parse(txt);
+    if (Array.isArray(list) && list.length) {
+      const fs = await import('node:fs');
+      const cur = fs.existsSync('data/deals-seed.json') ? fs.readFileSync('data/deals-seed.json', 'utf8') : '';
+      if (txt !== cur) {
+        fs.writeFileSync('data/deals-seed.json', txt);
+        console.log('seed pulled from GitHub:', list.length, 'deals');
+      } else console.log('seed unchanged');
+    }
+  } else console.log('seed fetch skipped: HTTP', r.status);
+} catch (e) { console.log('seed fetch failed:', e.message); }
+
+// 4. 刷新过期状态
 const res = await post('refreshDealStatuses');
 console.log('refreshDealStatuses:', JSON.stringify(res));
 if (res.ok === false) process.exit(1);
