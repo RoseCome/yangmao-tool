@@ -128,6 +128,9 @@ input,select{font-family:inherit;font-size:14px;color:var(--text)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;display:flex;flex-direction:column;gap:8px;position:relative}
 .card.visited{opacity:.58;background:var(--card2)}
 .card.visited .card-title{color:var(--muted)}
+/* 收藏夹里不灰：既然是你主动收藏的，就全部正常显示 */
+.cards.no-dim .card.visited{opacity:1;background:var(--card)}
+.cards.no-dim .card.visited .card-title{color:var(--text)}
 .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .card-title{font-size:15px;font-weight:700;line-height:1.4;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer;flex:1;min-width:0}
 a.card-title:hover{color:var(--accent)}
@@ -631,6 +634,9 @@ function countsFrom(source){
   return map;
 }
 function renderCategories(){
+  // 收藏夹里卡片不灰（都是自己收藏的，不需要淡化）
+  const cardsEl = $("#cards");
+  if(cardsEl) cardsEl.classList.toggle("no-dim", !!state.favorites);
   const sbCats = state.sidebar && state.sidebar.categories;
   const stCats = state.stats && state.stats.byCategory;
   const counts = Object.keys(countsFrom(sbCats)).length ? countsFrom(sbCats) : countsFrom(stCats);
