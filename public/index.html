@@ -39,6 +39,11 @@ input,select{font-family:inherit;font-size:14px;color:var(--text)}
 .btn-top{padding:9px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card2);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap}
 .btn-top:hover{border-color:var(--gold)}
 .btn-top:disabled{opacity:.7;cursor:not-allowed}
+.hide-top{display:flex;align-items:center;gap:7px;padding:6px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card2);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;user-select:none;flex:none}
+.hide-top:hover{border-color:var(--gold)}
+.hide-top .switch{width:34px;height:19px}
+.hide-top .switch .sl::after{width:13px;height:13px;left:3px;top:3px}
+.hide-top .switch input:checked + .sl::after{transform:translateX(15px)}
 .btn-top.primary{border:0;background:linear-gradient(180deg,#f5c542,#e8a91c);color:#3a2a00;font-weight:800;box-shadow:0 2px 8px rgba(232,169,28,.35)}
 .set-wrap{position:relative}
 .set-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:158px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16);padding:6px;display:flex;flex-direction:column;gap:4px;z-index:80}
@@ -249,6 +254,10 @@ a.card-title:hover{color:var(--accent)}
       <input id="searchInput" type="search" placeholder="搜索标题 / 平台 / 福利…" autocomplete="off">
     </div>
     <div class="top-actions">
+      <label class="hide-top" title="开启后，列表和「全部线报」里不再出现已看过的条目">
+        <span>🙈 隐藏已看</span>
+        <span class="switch"><input type="checkbox" id="hideVisitedTop"><span class="sl"></span></span>
+      </label>
       <button class="btn-top primary" id="discoverBtn">🔍 全网检索线报</button>
       <div class="set-wrap">
         <button class="btn-top" id="settingsBtn" aria-haspopup="true" aria-expanded="false">⚙ 设置</button>
@@ -873,10 +882,16 @@ $("#searchInput").addEventListener("input", e=>{
     resetList();
   }, 300);
 });
-$("#hideVisitedToggle").addEventListener("change", e=>{
-  state.hideVisited = e.target.checked;
+// 两个「隐藏已看」开关（顶栏 + 已看页）双向同步，统一驱动 state.hideVisited
+function setHideVisited(on){
+  state.hideVisited = !!on;
+  const a = $("#hideVisitedTop"), b = $("#hideVisitedToggle");
+  if(a) a.checked = state.hideVisited;
+  if(b) b.checked = state.hideVisited;
   resetList();
-});
+}
+$("#hideVisitedTop").addEventListener("change", e=>setHideVisited(e.target.checked));
+$("#hideVisitedToggle").addEventListener("change", e=>setHideVisited(e.target.checked));
 </script>
 <script>
 "use strict";
@@ -928,6 +943,7 @@ async function focusDeal(id){
   state.statFilter = ""; state.favorites = false; state.hideVisited = false;
   const si = $("#searchInput"); if(si) si.value = "";
   const hv = $("#hideVisitedToggle"); if(hv) hv.checked = state.hideVisited;
+  const ht = $("#hideVisitedTop"); if(ht) ht.checked = state.hideVisited;
   document.querySelectorAll("#statsGrid .stat").forEach(el=>{
     el.classList.toggle("active", (el.dataset.filter||"") === "");
   });
