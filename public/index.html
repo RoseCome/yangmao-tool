@@ -161,6 +161,8 @@ a.card-title:hover{color:var(--accent)}
 .notice b{color:var(--gold-deep)}
 .set-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
 .set-card h3{font-size:15px;margin-bottom:12px}
+.visited-head{margin:4px 0 12px}
+.visited-head h3{font-size:15px;color:var(--text)}
 .chan-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
 .chan-row:last-child{border-bottom:0}
 .chan-name{width:150px;font-weight:600;font-size:14px;flex:none}
@@ -335,10 +337,8 @@ a.card-title:hover{color:var(--accent)}
         </div>
         <div class="empty-note" style="text-align:left;padding-top:6px">开启后，列表和「全部线报」里不再出现已看过的条目；「已看」这里照样能看到全部已看。</div>
       </div>
-      <div class="set-card">
-        <h3>已看条目 <span id="visitedCount" class="side-cnt"></span></h3>
-        <div id="visitedList"><div class="empty-note">加载中…</div></div>
-      </div>
+      <div class="visited-head"><h3>已看条目 <span id="visitedCount" class="side-cnt"></span></h3></div>
+      <div id="visitedList"><div class="empty-note">加载中…</div></div>
     </section>
 
     <!-- 推送设置页 -->
@@ -807,6 +807,8 @@ async function markVisited(id, visited){
   }
   if(!res){ toast("标记已看失败，请稍后重试"); if(card) card.classList.toggle("visited", !visited); return; }
   loadStats(); loadSidebar();
+  // 已看页里操作后立刻刷新，不需要切回「全部线报」再切回来
+  if(state.view==="Visited") renderVisited();
 }
 
 /* ================= 列表加载 / 无限滚动 ================= */
@@ -943,6 +945,7 @@ async function focusDeal(id){
   markVisited(id, true);
 }
 /* ================= 已看页 ================= */
+// 用完整卡片渲染：已看页里能直接点眼睛取消已看、点星星收藏，不必切回「全部线报」
 async function renderVisited(){
   const box = $("#visitedList"), cnt = $("#visitedCount");
   box.innerHTML = `<div class="empty-note">加载中…</div>`;
@@ -951,14 +954,22 @@ async function renderVisited(){
   const list = res.deals || [];
   if(cnt) cnt.textContent = res.total ? `${fmtNum(res.total)} 条` : "";
   if(!list.length){ box.innerHTML = `<div class="empty-note">还没有已看条目。点卡片标题或右上角眼睛就会记为已看。</div>`; return; }
-  box.innerHTML = list.map(d=>sideItemHtml(d, "", "visited_at")).join("");
-  box.querySelectorAll(".side-item").forEach(el=>{
-    el.addEventListener("click", e=>{
-      e.preventDefault();
-      const id = Number(el.dataset.id);
-      if(id) focusDeal(id);
-    });
+  const tmp = document.createElement("div");
+  tmp.className = "cards";
+  tmp.innerHTML = list.map(cardHtml).join("");
+  // 已看时间徽标：把默认的"已看"换成"看于 HH:MM"
+  tmp.querySelectorAll(".card").forEach((card, i)=>{
+    const d = list[i];
+    if(!d || !d.visited_at) return;
+    const meta = card.querySelector(".card-meta");
+    if(!meta) return;
+    let badge = meta.querySelector(".visited-badge");
+    if(!badge){ badge = document.createElement("span"); badge.className = "visited-badge"; meta.appendChild(badge); }
+    badge.textContent = "看于 " + fmtTime(d.visited_at);
   });
+  bindCardEvents(tmp);
+  box.innerHTML = "";
+  box.appendChild(tmp);
 }
 
 async function loadSidebar(){

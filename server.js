@@ -733,8 +733,8 @@ if (exists) {
   const sets = [], params = [];
   if (d.visited === true) { sets.push('visited = 1');
     sets.push('visited_at = ?'); params.push(d.visited_at ? Number(d.visited_at) || now() : now()); } // 只标已看，不回退
-  if (d.pinned !== undefined) { sets.push('pinned = ?'); params.push(d.pinned ? 1 : 0); }
-  if (d.status !== undefined && d.status) { sets.push('status = ?'); params.push(d.status); }
+  if (d.pinned === true) { sets.push('pinned = 1'); } // 只加收藏，绝不清掉：种子是设备旧快照，pinned=false 不代表用户取消
+  if (d.status !== undefined && d.status === 'ended') { sets.push('status = ?'); params.push(d.status); } // 状态只单向推进到 ended，不回退
   if (sets.length) db.prepare(`UPDATE deals SET ${sets.join(', ')}, updated_at = ? WHERE id = ?`).run(...params, now(), exists.id);
   skipped++; continue;
 }
