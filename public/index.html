@@ -44,6 +44,10 @@ input,select{font-family:inherit;font-size:14px;color:var(--text)}
 .hide-top .switch{width:34px;height:19px}
 .hide-top .switch .sl::after{width:13px;height:13px;left:3px;top:3px}
 .hide-top .switch input:checked + .sl::after{transform:translateX(15px)}
+.batch-btn{display:block;width:100%;padding:10px 12px;margin-top:8px;border:1px solid var(--border);border-radius:10px;background:var(--card2);color:var(--text);font-size:14px;font-weight:600;text-align:left;cursor:pointer}
+.batch-btn:hover{border-color:var(--gold)}
+.batch-btn.danger{color:var(--red,#d33);border-color:rgba(220,80,80,.4)}
+.batch-btn.danger:hover{border-color:var(--red,#d33);background:rgba(220,80,80,.08)}
 .btn-top.primary{border:0;background:linear-gradient(180deg,#f5c542,#e8a91c);color:#3a2a00;font-weight:800;box-shadow:0 2px 8px rgba(232,169,28,.35)}
 .set-wrap{position:relative}
 .set-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:158px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16);padding:6px;display:flex;flex-direction:column;gap:4px;z-index:80}
@@ -419,6 +423,12 @@ a.card-title:hover{color:var(--accent)}
       <div class="side-title">🆕 最新动态</div>
       <div id="latestList"><div class="empty-note">加载中…</div></div>
     </div>
+    <div class="side-card">
+      <div class="side-title">🛠 当前列表操作</div>
+      <div id="batchScope" class="empty-note" style="font-size:12px;margin-bottom:8px">作用于：全部线报</div>
+      <button class="batch-btn" id="copyLinksBtn">📋 复制本类链接</button>
+      <button class="batch-btn danger" id="markAllVisitedBtn">👁 一键已看</button>
+    </div>
   </aside>
 </div>
 
@@ -646,6 +656,7 @@ function renderCategories(){
   // 收藏夹里卡片不灰（都是自己收藏的，不需要淡化）
   const cardsEl = $("#cards");
   if(cardsEl) cardsEl.classList.toggle("no-dim", !!state.favorites);
+  updateBatchScope();
   const sbCats = state.sidebar && state.sidebar.categories;
   const stCats = state.stats && state.stats.byCategory;
   const counts = Object.keys(countsFrom(sbCats)).length ? countsFrom(sbCats) : countsFrom(stCats);
@@ -892,6 +903,52 @@ function setHideVisited(on){
 }
 $("#hideVisitedTop").addEventListener("change", e=>setHideVisited(e.target.checked));
 $("#hideVisitedToggle").addEventListener("change", e=>setHideVisited(e.target.checked));
+
+/* ================= 当前列表批量操作（复制链接 / 一键已看） ================= */
+function batchScopeText(){
+  if(state.favorites) return "我的收藏";
+  if(state.search) return `搜索「${state.search}」`;
+  if(state.category!=="all") return catLabel(state.category);
+  return "全部线报";
+}
+function updateBatchScope(){
+  const el = $("#batchScope");
+  if(el) el.textContent = "作用于：" + batchScopeText();
+}
+function batchFilter(){
+  const p = {};
+  if(state.category!=="all") p.category = state.category;
+  if(state.favorites) p.favorites = true;
+  if(state.search) p.search = state.search;
+  return p;
+}
+async function copyText(t){
+  try{ if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(t); return true; } }catch(e){}
+  try{
+    const ta = document.createElement("textarea");
+    ta.value = t; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  }catch(e){ return false; }
+}
+$("#copyLinksBtn").addEventListener("click", async ()=>{
+  const res = await api("exportLinks", batchFilter());
+  if(!res){ toast("复制失败，请稍后重试"); return; }
+  if(!res.total){ toast("当前列表没有可复制的条目"); return; }
+  const text = res.items.map(it => it.link ? `${it.title}\n${it.link}` : it.title).join("\n\n");
+  const ok = await copyText(text);
+  toast(ok ? `已复制 ${res.total} 条链接（标题 + 链接）` : "复制失败，请手动复制");
+});
+$("#markAllVisitedBtn").addEventListener("click", async ()=>{
+  const scope = batchScopeText();
+  if(!confirm(`确定把「${scope}」下的所有未看条目一键标记为已看吗？\n此操作不可撤销。`)) return;
+  const res = await api("markVisitedBatch", batchFilter());
+  if(!res){ toast("操作失败，请稍后重试"); return; }
+  toast(`已标记 ${res.updated} 条已看`);
+  loadStats(); loadSidebar();
+  if(state.view==="Visited") renderVisited();
+  else resetList();
+});
 </script>
 <script>
 "use strict";
