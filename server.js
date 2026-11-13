@@ -433,6 +433,32 @@ const deals = rows.slice(offset, offset + limit);
 return { deals, total, has_more: offset + deals.length < total};
 },
 
+exportLinks(b = {}) {
+  const where = [], params = [];
+  if (b.category) { where.push(`category =?`); params.push(b.category);}
+  if (b.favorites) { where.push(`pinned = 1`);}
+  if (b.search) {
+    where.push(`(title LIKE? OR platform LIKE? OR benefit LIKE? OR conditions LIKE?)`);
+    const q = `%${b.search}%`; params.push(q, q, q, q);
+  }
+  const rows = db.prepare(`SELECT id, title, link FROM deals ${where.length? 'WHERE ' + where.join(' AND '): ''} ORDER BY id DESC`).all(...params);
+  return { total: rows.length, items: rows.map((r) => ({ id: r.id, title: r.title, link: r.link || '' })) };
+},
+
+markVisitedBatch(b = {}) {
+  const where = [], params = [];
+  if (b.category) { where.push(`category =?`); params.push(b.category);}
+  if (b.favorites) { where.push(`pinned = 1`);}
+  if (b.search) {
+    where.push(`(title LIKE? OR platform LIKE? OR benefit LIKE? OR conditions LIKE?)`);
+    const q = `%${b.search}%`; params.push(q, q, q, q);
+  }
+  where.push(`visited = 0`);
+  const t = now();
+  const r = db.prepare(`UPDATE deals SET visited = 1, visited_at = ?, updated_at = ? WHERE ${where.join(' AND ')}`).run(t, t, ...params);
+  return { updated: r.changes };
+},
+
 getDealStats() { return getDealStats();},
 
 getSidebarData() {
