@@ -10652,5 +10652,91 @@
     "visited": false,
     "visited_at": null,
     "worth_cny": null
+  },
+  {
+    "active_addresses": null,
+    "benefit": "AI 代理编码赏金，优胜者分 USDC（Solana 链上支付）；Model Aggregator 总奖池 $500，前 20 名分 100/70/50/20/14 美元；参赛免费，大多数赏金免报名费",
+    "category": "airdrop",
+    "conditions": "需 Solana 钱包登录；参赛作品须是 2026-11-14 02:30 UTC 后新建的公开 GitHub 仓库，MIT 协议，根目录 main.ts 或 main.py，附 AI 会话记录；Model Aggregator 截止 2026-11-16 10:30 北京时间，已有 3085 份提交；只有进名次才有奖，未进名次 0 收入",
+    "created_at": "2026-11-14T16:53:40.174Z",
+    "est_earn_high": null,
+    "est_earn_low": null,
+    "expiry_date": "2026-11-16",
+    "fdv_usd": null,
+    "id": 391,
+    "link": "https://make.fun",
+    "notes": "来源：X @edyjayakarya 2026-11-14 帖子做法核对 + make.fun 官网 skill.md 与 /api/competitions 实测 2026-11-15；作者帖中链接为其推荐链接，此处用官网不用推荐链；作者称 Model Aggregator 不到 5 分钟做完，未提供获奖/到账凭证，评论里有人反馈 Muse 拒绝建钱包、可复现性存疑；私钥安全：绝不用主钱包，专用空钱包，私钥不经下载链接发送；FDV 三参数不适用，收益待定",
+    "pinned": false,
+    "platform": "make.fun 官方",
+    "play_types": [
+      "claim"
+    ],
+    "pool_ratio": null,
+    "published_at": null,
+    "status": "todo",
+    "tags": [
+      "claim"
+    ],
+    "title": "MakeFun AI 代理编码赏金 优胜分 USDC（竞赛型）",
+    "updated_at": "2026-11-14T16:53:40.174Z",
+    "visited": false,
+    "visited_at": null,
+    "worth_cny": null
+  },
+  {
+    "active_addresses": null,
+    "benefit": "OnlineTV 20 限免领正版（原价 $21.99）：在电脑上看直播电视频道、听电台，Giveaway of the Day 当日免费",
+    "category": "scripts",
+    "conditions": "Giveaway of the Day 当日限免，以官网为准，过期恢复原价 $21.99；Windows 版，需在官网下载并按页面提示激活",
+    "created_at": "2026-11-14T16:56:08.071Z",
+    "est_earn_high": null,
+    "est_earn_low": null,
+    "expiry_date": "2026-11-15",
+    "fdv_usd": null,
+    "id": 392,
+    "link": "https://www.giveawayoftheday.com/onlinetv-20/",
+    "notes": "来源：Freebie Radar / Giveaway of the Day；2026-11-15 00:55 核对官网首页仍显示 OnlineTV 20 为 free today（$21.99）。同批其他 6 个 Giveaway of the Day 软件是 11 月 8–13 日的过期日供，未入库；Knightica 已在空间 id 335，InstaBox 已在 id 197，均未重复加。",
+    "pinned": false,
+    "platform": "Giveaway of the Day",
+    "play_types": [
+      "claim"
+    ],
+    "pool_ratio": null,
+    "published_at": null,
+    "status": "todo",
+    "tags": [
+      "claim"
+    ],
+    "title": "免费领软件 OnlineTV 20（原价 $21.99，今日限免）",
+    "updated_at": "2026-11-14T16:56:08.071Z",
+    "visited": false,
+    "visited_at": null,
+    "worth_cny": null
+  },
+  {
+    "active_addresses": null,
+    "benefit": "开源电子书阅读器（GitHub 约 2.9 万星），网页版打开即用，免安装免注册；导入 EPUB/TXT/PDF，按目录阅读、全文搜索、加书签、本地备份都免费",
+    "category": "office",
+    "conditions": "浏览器打开 web.koodoreader.com，选“继续使用浏览器存储”即可导入阅读；书库只存在浏览器本地，清理网站数据会丢，需定期本地备份；跨设备同步、官方翻译等为专业版功能",
+    "created_at": "2026-11-14T17:13:34.277Z",
+    "est_earn_high": null,
+    "est_earn_low": null,
+    "expiry_date": null,
+    "fdv_usd": null,
+    "id": 393,
+    "link": "https://web.koodoreader.com",
+    "notes": "来源渠道：什么值得买 2026-11-15 00:38 实测帖（网页版 2.4.8，TXT/EPUB 实测导入、目录、搜索、书签、备份恢复均可用）；免费范围以官方功能对照页 koodoreader.com 为准；不负责找书源，不能解 DRM 电子书。",
+    "pinned": false,
+    "platform": "Koodo Reader 官网 / 什么值得买",
+    "play_types": [],
+    "pool_ratio": null,
+    "published_at": null,
+    "status": "todo",
+    "tags": [],
+    "title": "Koodo Reader 网页版免费读电子书 免安装免注册",
+    "updated_at": "2026-11-14T17:13:34.277Z",
+    "visited": false,
+    "visited_at": null,
+    "worth_cny": null
   }
 ]
