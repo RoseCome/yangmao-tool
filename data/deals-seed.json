@@ -2075,7 +2075,7 @@
     "link": "https://claim.fables.fi",
     "expiry_date": "2026-11-20",
     "published_at": null,
-    "status": "todo",
+    "status": "ended",
     "tags": [
       "claim",
       "points",
@@ -2091,7 +2091,7 @@
     "est_earn_high": null,
     "worth_cny": null,
     "created_at": "2026-11-08T05:06:28.055Z",
-    "updated_at": "2026-11-08T08:11:44.392Z"
+    "updated_at": "2026-11-21T00:58:38.521Z"
   },
   {
     "id": 84,
@@ -3104,7 +3104,7 @@
     "link": "https://vearl.org/participate/",
     "expiry_date": "2026-11-20",
     "published_at": "2026-10-23T04:00:00.000Z",
-    "status": "todo",
+    "status": "ended",
     "tags": [
       "testnet",
       "node"
@@ -3119,7 +3119,7 @@
     "est_earn_high": null,
     "worth_cny": null,
     "created_at": "2026-11-08T08:08:31.987Z",
-    "updated_at": "2026-11-08T08:11:44.392Z"
+    "updated_at": "2026-11-21T00:58:38.521Z"
   },
   {
     "id": 123,
@@ -12040,7 +12040,7 @@
     "link": "https://flint.trade",
     "expiry_date": "2026-11-20",
     "published_at": "2026-11-16T04:00:00.000Z",
-    "status": "todo",
+    "status": "ended",
     "tags": [
       "testnet",
       "points"
@@ -12055,7 +12055,7 @@
     "est_earn_high": null,
     "worth_cny": null,
     "created_at": "2026-11-20T05:06:00.622Z",
-    "updated_at": "2026-11-20T05:06:00.622Z"
+    "updated_at": "2026-11-21T00:58:38.521Z"
   },
   {
     "id": 472,
@@ -12173,7 +12173,7 @@
     "link": "https://www.giveawayoftheday.com/coolmuster-mobile-transfer-5-0-37/",
     "expiry_date": "2026-11-20",
     "published_at": null,
-    "status": "todo",
+    "status": "ended",
     "tags": [],
     "pinned": false,
     "visited": false,
@@ -12185,7 +12185,7 @@
     "est_earn_high": null,
     "worth_cny": null,
     "created_at": "2026-11-20T11:06:40.341Z",
-    "updated_at": "2026-11-20T11:06:40.341Z"
+    "updated_at": "2026-11-21T00:58:38.521Z"
   },
   {
     "id": 477,
@@ -12361,5 +12361,133 @@
     "worth_cny": null,
     "created_at": "2026-11-20T17:11:22.829Z",
     "updated_at": "2026-11-20T17:11:22.829Z"
+  },
+  {
+    "id": 484,
+    "title": "Elarvo 日语 AI 视频生成 注册签到送免费积分",
+    "platform": "elarvo.ai",
+    "category": "ai",
+    "benefit": "日语 AI 视频生成工具，文生视频/图生视频，支持 Veo、Kling、Seedance 等多模型，注册签到送免费积分可直接生成",
+    "conditions": "注册账号后签到领免费积分；生成按模型和时长扣积分，失败返还一次；需邮箱注册",
+    "notes": "来源：V2EX 推广帖（2026-11-20）+ 官网 elarvo.ai 核对：官网确认文生/图生视频、多模型、积分制、注册后有积分、失败返还；免费积分数额官网未明示，以实际账户为准。",
+    "link": "https://elarvo.ai",
+    "expiry_date": null,
+    "published_at": "2026-11-20T10:17:55.000Z",
+    "status": "todo",
+    "tags": [],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-20T23:08:43.849Z",
+    "updated_at": "2026-11-20T23:08:43.849Z"
+  },
+  {
+    "id": 485,
+    "title": "荣耀钱包天天领会员 做任务兑视频/音乐会员、E卡、话费",
+    "platform": "荣耀钱包",
+    "category": "membership",
+    "benefit": "荣耀手机钱包 App 内天天领会员，做简单任务攒时长，可兑视频、音乐会员、E卡、话费",
+    "conditions": "需荣耀手机且能用荣耀钱包；打开钱包 App，进「天天领会员」做任务攒时长兑换；两三天可兑一个月卡（据帖内反馈）",
+    "notes": "来源：LINUX DO 福利羊毛帖（2026-11-20 06:44）；无官方领取链接，站内活动以钱包 App 实际页面为准；帖内反馈：近期每日可得时长减少、兑换商城部分商品缺货。",
+    "link": null,
+    "expiry_date": null,
+    "published_at": "2026-11-19T22:44:00.000Z",
+    "status": "todo",
+    "tags": [],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-20T23:08:43.849Z",
+    "updated_at": "2026-11-20T23:08:43.849Z"
+  },
+  {
+    "id": 486,
+    "title": "领取 CHIP（USD.AI）Season 2 空投 截止2027年1月31日，Season 3 积分进行中",
+    "platform": "USD.AI 官方 X @USDai_Official",
+    "category": "airdrop",
+    "benefit": "Season 2 共 2.25 亿 CHIP（占总量 2.25%）已可领取，无锁仓无归属；Season 3 积分进行中至 2027 年 4 月 14 日",
+    "conditions": "Season 2 领取：连接 Season 2 攒分用的钱包，在 Arbitrum 上领取，截止 2027 年 1 月 31 日，过期作废；Solana 参与者须在 10 月 25 日前绑定 EVM 钱包；Season 3 新参与：持仓/质押 USDai、sUSDai 攒 Allo 积分，需资金，非纯零撸",
+    "notes": "来源渠道：项目官方 X @USDai_Official（CoinMarketCal 转引）/ airdrops.io / TradingView；FDV 反推依据：空投池 2.25% · FDV 与净活跃地址未公开，预估收益待定。只用官网 App 领取，勿信私信代领。",
+    "link": "https://app.usd.ai/dashboard",
+    "expiry_date": "2027-01-31",
+    "published_at": "2026-10-20T15:00:00.000Z",
+    "status": "todo",
+    "tags": [
+      "claim",
+      "points"
+    ],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-20T23:08:43.849Z",
+    "updated_at": "2026-11-20T23:08:43.849Z"
+  },
+  {
+    "id": 487,
+    "title": "colibri 开源免费推理引擎 8GB 内存跑 700B+ 大模型",
+    "platform": "GitHub JustVugg/colibri",
+    "category": "ai",
+    "benefit": "纯 C 开源推理引擎，磁盘流式加载专家权重，8GB 内存电脑也能跑 GLM-5.3、Kimi K3、DeepSeek V4.1 Flash 等数百 B 大模型，离线可用",
+    "conditions": "至少 8GB 内存（16GB 更好）、最小模型需 22GB 空闲磁盘；下载模型体积大（GLM-5.2 约 429GB）；git clone 后 ./start-here.sh 一键安装",
+    "notes": "来源：GitHub 仓库 JustVugg/colibri（Apache-2.0，约 5.2 万 stars，v2.1.0 发布于 2026-11-10）+ The Agentic Post / RepoRadar 核对；免费开源可商用（Apache-2.0），无需 Key，模型从 Hugging Face 下载。",
+    "link": "https://github.com/JustVugg/colibri",
+    "expiry_date": null,
+    "published_at": "2026-11-10T04:00:00.000Z",
+    "status": "todo",
+    "tags": [],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-20T23:08:43.849Z",
+    "updated_at": "2026-11-20T23:08:43.849Z"
+  },
+  {
+    "id": 488,
+    "title": "淘宝闪购搜爷爷不泡茶 每天11点抢0.1元商品券",
+    "platform": "淘宝闪购",
+    "category": "shopping",
+    "benefit": "手淘闪购搜「爷爷不泡茶」进任意门店，每天 11 点抢 0.1 元商品券",
+    "conditions": "打开淘宝闪购，搜「爷爷不泡茶」，进任意门店，11 点抢 0.1 元商品券；以实际页面为准",
+    "notes": "来源：线报站 jjxianbao / 线报屋（2026-11-14）；每日限量活动，以实际页面为准。",
+    "link": null,
+    "expiry_date": null,
+    "published_at": "2026-11-14T02:57:29.000Z",
+    "status": "todo",
+    "tags": [],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-20T23:08:43.849Z",
+    "updated_at": "2026-11-20T23:08:43.849Z"
   }
 ]
