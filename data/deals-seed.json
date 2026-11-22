@@ -12529,7 +12529,7 @@
     "link": null,
     "expiry_date": "2026-11-21",
     "published_at": "2026-11-21T04:00:00.000Z",
-    "status": "todo",
+    "status": "ended",
     "tags": [],
     "pinned": false,
     "visited": false,
@@ -12541,7 +12541,7 @@
     "est_earn_high": null,
     "worth_cny": null,
     "created_at": "2026-11-21T05:09:13.856Z",
-    "updated_at": "2026-11-21T05:09:13.856Z"
+    "updated_at": "2026-11-22T00:58:38.401Z"
   },
   {
     "id": 491,
@@ -12579,7 +12579,7 @@
     "link": "https://www.giveawayoftheday.com/100-realistic-sky-photo-overlays/",
     "expiry_date": "2026-11-21",
     "published_at": null,
-    "status": "todo",
+    "status": "ended",
     "tags": [],
     "pinned": false,
     "visited": false,
@@ -12591,7 +12591,7 @@
     "est_earn_high": null,
     "worth_cny": null,
     "created_at": "2026-11-21T11:04:32.584Z",
-    "updated_at": "2026-11-21T11:04:32.584Z"
+    "updated_at": "2026-11-22T00:58:38.401Z"
   },
   {
     "id": 493,
@@ -12795,5 +12795,58 @@
     "worth_cny": null,
     "created_at": "2026-11-21T17:07:09.747Z",
     "updated_at": "2026-11-21T17:07:09.747Z"
+  },
+  {
+    "id": 501,
+    "title": "免费领 100 张写实天空照片叠加素材（原价 $19，今日限免）",
+    "platform": "Giveaway of the Day",
+    "category": "office",
+    "benefit": "100 张写实天空叠加素材（日落、云层、星空等），高清 300 DPI，附扩展商用授权，可反复用于自己和客户的设计，兼容 Photoshop/GIMP 等。",
+    "conditions": "在 Giveaway of the Day 当日免费领（2026-11-22 当天有效，过期恢复 $19）；下载约 1.5GB，终身授权；需按页面指引完成领取，以实际页面为准。",
+    "notes": "来源：Giveaway of the Day 官方当日赠品页 2026-11-22 核对（原价 $19.00、限时免费、终身授权、扩展商用许可；出版方 Eldamar Studio，官网 eldamar-studio.com）。",
+    "link": "https://www.giveawayoftheday.com/100-realistic-sky-photo-overlays/",
+    "expiry_date": "2026-11-22",
+    "published_at": null,
+    "status": "todo",
+    "tags": [],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-21T23:06:03.798Z",
+    "updated_at": "2026-11-21T23:06:03.798Z"
+  },
+  {
+    "id": 502,
+    "title": "积分 Delpho（USDV）第一季积分 前4周双倍 HYPE抵押12倍（潜在空投）",
+    "platform": "Delpho 官方 X @delpho_labs",
+    "category": "airdrop",
+    "benefit": "Hyperliquid 生态稳定币协议 Delpho 第一季积分：存抵押品铸 USDV（0% 借款利率）、持 USDV/sUSDV 或在 Nest 提供 USDV-USDC 流动性攒积分，前 4 周每周 10 万积分双倍发放。",
+    "conditions": "需在 HyperEVM 用 USDC/USDT/HYPE/kHYPE 作抵押铸 USDV；先在积分页接受 Points Terms 才开始计分；HYPE/kHYPE 抵押前 4 周 12 倍加分；第 1–4 周一半积分扣留至第 8 周结束才全额发放；拉人得被邀人积分 10%；只用无资产的专用钱包参与。官方未确认发币，积分≠代币，属潜在空投观察项。",
+    "notes": "来源渠道：Delpho 官方 X @delpho_labs（2026-11-12 上线公告）+ airdrops.io Delpho 指南 2026-11-12 更新核对（Season 1 于 11 月 12 日 19:00 UTC 开放，每周积分池与忠诚度规则）；Arkada 指南交叉核对（未官宣代币/空投）。无官方领取页，链接留空，认准 @delpho_labs 防假冒。FDV 反推依据：未官宣代币，FDV/空投池比例/净活跃地址数未核对到，收益待定。",
+    "link": null,
+    "expiry_date": null,
+    "published_at": null,
+    "status": "todo",
+    "tags": [
+      "points",
+      "referral"
+    ],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-21T23:06:03.868Z",
+    "updated_at": "2026-11-21T23:06:03.868Z"
   }
 ]
