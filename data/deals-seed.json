@@ -13575,5 +13575,30 @@
     "worth_cny": null,
     "created_at": "2026-11-23T11:04:52.045Z",
     "updated_at": "2026-11-23T11:04:52.045Z"
+  },
+  {
+    "id": 532,
+    "title": "Termini iOS 终端 永久 Pro 限免（原价 $2.99）",
+    "platform": "App Store / Termini",
+    "category": "office",
+    "benefit": "iPhone/iPad SSH 终端工具，永久 Pro 内购限时 0 元：无限服务器、iCloud 同步备份、去广告、专属主题；原价 $2.99。",
+    "conditions": "需 iOS 17+；App 内「设置」里 Pro 显示 0 元时再点购买，确认价格为 0 元再下单；限免随时结束，以 App 内实际价格为准。",
+    "notes": "来源：LINUX DO 福利羊毛 2026-11-23 帖子核对（设置里 Pro 显示 0 元再点购买，多人反馈已领取）；App Store 列表价永久 Pro $2.99，限免为内购临时调价。",
+    "link": "https://apps.apple.com/us/app/termini-ssh-client/id6817167359",
+    "expiry_date": null,
+    "published_at": "2026-11-23T06:59:00.000Z",
+    "status": "todo",
+    "tags": [],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-23T17:07:23.595Z",
+    "updated_at": "2026-11-23T17:07:23.595Z"
   }
 ]
