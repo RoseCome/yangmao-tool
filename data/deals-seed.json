@@ -5134,7 +5134,7 @@
     "link": "https://lowendspirit.com/discussion/11575/fossvps-important-update",
     "expiry_date": "2026-11-23",
     "published_at": "2026-11-05T07:20:01.000Z",
-    "status": "todo",
+    "status": "ended",
     "tags": [],
     "pinned": false,
     "visited": false,
@@ -5146,7 +5146,7 @@
     "est_earn_high": null,
     "worth_cny": null,
     "created_at": "2026-11-09T05:11:15.727Z",
-    "updated_at": "2026-11-09T05:11:15.727Z"
+    "updated_at": "2026-11-24T00:58:38.643Z"
   },
   {
     "id": 201,
@@ -8414,7 +8414,7 @@
     "link": "https://play.google.com/store/apps/details?id=com.Gameplete.CardFantasyPremium&hl=en&gl=us",
     "expiry_date": "2026-11-23",
     "published_at": null,
-    "status": "todo",
+    "status": "ended",
     "tags": [],
     "pinned": false,
     "visited": false,
@@ -8426,7 +8426,7 @@
     "est_earn_high": null,
     "worth_cny": 80,
     "created_at": "2026-11-11T18:11:58.666Z",
-    "updated_at": "2026-11-11T18:11:58.666Z"
+    "updated_at": "2026-11-24T00:58:38.643Z"
   },
   {
     "id": 329,
@@ -11940,7 +11940,7 @@
     "link": "https://store.steampowered.com/app/1158310/Crusader_Kings_III/",
     "expiry_date": "2026-11-23",
     "published_at": "2026-11-19T04:00:00.000Z",
-    "status": "todo",
+    "status": "ended",
     "tags": [],
     "pinned": false,
     "visited": false,
@@ -11952,7 +11952,7 @@
     "est_earn_high": null,
     "worth_cny": null,
     "created_at": "2026-11-19T23:09:35.758Z",
-    "updated_at": "2026-11-19T23:09:35.758Z"
+    "updated_at": "2026-11-24T00:58:38.643Z"
   },
   {
     "id": 468,
@@ -11965,7 +11965,7 @@
     "link": "https://store.steampowered.com/app/3282300/Mistfall_Hunter/",
     "expiry_date": "2026-11-23",
     "published_at": "2026-11-19T04:00:00.000Z",
-    "status": "todo",
+    "status": "ended",
     "tags": [],
     "pinned": false,
     "visited": false,
@@ -11977,7 +11977,7 @@
     "est_earn_high": null,
     "worth_cny": null,
     "created_at": "2026-11-19T23:09:35.758Z",
-    "updated_at": "2026-11-19T23:09:35.758Z"
+    "updated_at": "2026-11-24T00:58:38.643Z"
   },
   {
     "id": 469,
@@ -13512,7 +13512,7 @@
     "link": "https://www.giveawayoftheday.com/aiarty-image-matting-2-7/",
     "expiry_date": "2026-11-23",
     "published_at": "2026-11-23T08:00:00.000Z",
-    "status": "todo",
+    "status": "ended",
     "tags": [],
     "pinned": false,
     "visited": false,
@@ -13524,7 +13524,7 @@
     "est_earn_high": null,
     "worth_cny": null,
     "created_at": "2026-11-23T11:04:52.045Z",
-    "updated_at": "2026-11-23T11:04:52.045Z"
+    "updated_at": "2026-11-24T00:58:38.643Z"
   },
   {
     "id": 530,
@@ -13600,5 +13600,80 @@
     "worth_cny": null,
     "created_at": "2026-11-23T17:07:23.595Z",
     "updated_at": "2026-11-23T17:07:23.595Z"
+  },
+  {
+    "id": 533,
+    "title": "Qoder 匿名模型 Qoduck 免费畅用 7 天 额度内 0 消耗（11/23–11/30）",
+    "platform": "Qoder 官方活动页",
+    "category": "ai",
+    "benefit": "阿里 Qoder 匿名模型 Qoduck 限时免费：个人账号每日免费额度内调用不扣 Credits，最高思考强度也不扣分，无需领取。",
+    "conditions": "2026 年 11 月 23 日 24:00 至 11 月 30 日 24:00；Qoder / QoderIDE（CN 版与国际版）个人用户均可；更新客户端后在模型选择器选 Qoduck 即自动生效；仅 Qoder International App 与 Qoder CN 桌面端支持，IDE/JetBrains 插件/CLI 暂不支持，Teams/Enterprise 不可见；额度用完后按 0.5× 继续，高峰期可能排队；以官方活动页为准。",
+    "notes": "来源：LINUX DO 福利帖 2026-11-23（11/23 24:00–11/30 24:00 免费畅用 7 天）+ Qoder 官方活动页 docs.qoder.com/events/qoduck-free 与官方 X @qoder_ai_ide 核对（每日免费额度内 0.0× Credits、身份未披露）；社区猜测的模型身份（Qwen4 等）未经官方确认，不写为定论。",
+    "link": "https://docs.qoder.com/events/qoduck-free",
+    "expiry_date": "2026-11-30",
+    "published_at": "2026-11-23T08:38:00.000Z",
+    "status": "todo",
+    "tags": [],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-23T23:07:44.744Z",
+    "updated_at": "2026-11-23T23:07:44.744Z"
+  },
+  {
+    "id": 534,
+    "title": "Emojis AI 微信表情包生成站 完全免费 注册送 100 积分+兑换码再领 500 积分",
+    "platform": "Emojis AI 官网",
+    "category": "ai",
+    "benefit": "AI Agent 对话式自动生成微信表情包：主角、静态图、动态图、物料全包，注册即送 100 积分，目前无任何收费服务。",
+    "conditions": "注册即送 100 积分；兑换码 LD-38R4-LM89-C8FP 可再领 500 积分（100 次使用机会，每人限领一次），V2EX 兑换码 V2EX-XBK2-RZBH-Z3BT 领 200 积分；支持 LINUX DO 账号直接登录；积分用完可在原帖评论附 ID 找作者再领；生成素材可上架微信表情平台，注意版权；以官网实际页面为准。",
+    "notes": "来源：LINUX DO 公益推广帖 2026-11-23（作者 licoy，注册送 100 积分、无收费服务、兑换码 LD-38R4-LM89-C8FP）+ V2EX 同作者帖核对（官网 emojis-ai.com、兑换码 V2EX-XBK2-RZBH-Z3BT）；兑换码以实际兑换为准，先到先得。",
+    "link": "https://emojis-ai.com",
+    "expiry_date": null,
+    "published_at": "2026-11-23T06:13:00.000Z",
+    "status": "todo",
+    "tags": [],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-23T23:07:44.744Z",
+    "updated_at": "2026-11-23T23:07:44.744Z"
+  },
+  {
+    "id": 535,
+    "title": "Qwen Code 1.0 Preview 免费开源终端 AI 编程助手 接本地模型免费用",
+    "platform": "GitHub QwenLM/qwen-code",
+    "category": "scripts",
+    "benefit": "阿里 Qwen 团队开源终端 AI 编程助手（约 3 万 stars，Apache 2.0）：读写文件、改代码、跑命令跑测试，支持 VS Code/Zed/JetBrains 插件与桌面端。",
+    "conditions": "工具本身免费开源；模型需自备：Qwen 账号需 Plus/Pro 订阅，或用 QwenCloud/ModelStudio API Key、第三方 API（DeepSeek/OpenRouter 等），也可接本地 Ollama/vLLM 免费用模型；安装 npm install -g @qwen-code/qwen-code@latest（注意不要装成非官方的 npx qwen 包）；qwen serve 默认本机无鉴权监听，仅本地使用；1.0 Preview 接口可能变化；以 GitHub 仓库实际页面为准。",
+    "notes": "来源：GitHub 仓库 QwenLM/qwen-code 与 CrazycodersLab 2026-11-23 文章核对（约 30.7K stars、Apache 2.0、v1.0.0-preview、npm 包 @qwen-code/qwen-code、Qwen 账号需 Plus/Pro、支持 Ollama/vLLM 本地模型）。",
+    "link": "https://github.com/QwenLM/qwen-code",
+    "expiry_date": null,
+    "published_at": null,
+    "status": "todo",
+    "tags": [],
+    "pinned": false,
+    "visited": false,
+    "visited_at": null,
+    "fdv_usd": null,
+    "pool_ratio": null,
+    "active_addresses": null,
+    "est_earn_low": null,
+    "est_earn_high": null,
+    "worth_cny": null,
+    "created_at": "2026-11-23T23:07:44.744Z",
+    "updated_at": "2026-11-23T23:07:44.744Z"
   }
 ]
